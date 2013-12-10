@@ -7,7 +7,8 @@ using UnityEditor;
 /// roadmap:
 /// 自动找到切分线，并且能够将border信息保存下来，并保存在对应的atlas中
 /// 
-/// 应该处理的是atlas，而不是贴图，通过atlas选择一张图，然后对图进行处理，处理完之后，保存到本地
+/// 如果原来的sprite没有border信息，需要将所有用到这张sprite的界面元素的类型改成sliced
+/// 
 /// </summary>
 public class UIAtlas9PatchSlicer : EditorWindow
 {
@@ -19,16 +20,16 @@ public class UIAtlas9PatchSlicer : EditorWindow
 
     Texture2D mTex;
     Texture2D mPreviewTex;
-    //Color blue = new Color(0f, 0.7f, 1f, 1f);
-    //Color green = new Color(0.4f, 1f, 0f, 1f);
 
     NGUIEditorTools.IntVector mBorderA;
     NGUIEditorTools.IntVector mBorderB;
     string mPath;
+    string mOutputPath;
 
     UIAtlas mAtlas;
-    //UIAtlas.Sprite mSpriteData;
     string mSpriteName;
+
+    AtlasUtility.SpriteEntry mSpriteEntry;
     void OnGUI()
     {
         ComponentSelector.Draw<UIAtlas>(mAtlas, obj =>
@@ -37,31 +38,41 @@ public class UIAtlas9PatchSlicer : EditorWindow
             });
 
         if (mAtlas == null) return;
-        NGUIEditorTools.AdvancedSpriteField(mAtlas, mSpriteName, 
-            p=>
+        NGUIEditorTools.AdvancedSpriteField(mAtlas, mSpriteName,
+            spriteName =>
             {
-                mSpriteName = p;
-                //mSpriteData.name = p;
-                //mSprite.MakePixelPerfect();
+                string path = NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/" + spriteName + ".png";
+                mOutputPath = NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/" + spriteName + ".png";
+                mTex = AssetDatabase.LoadAssetAtPath(path, typeof(Texture2D)) as Texture2D;
+
+                mSpriteEntry = AtlasUtility.ExtractSprite(mAtlas, spriteName);
+
+                if (mTex != null)
+                {
+                    mSpriteName = spriteName;
+                }
+                else
+                {
+                    if (EditorUtility.DisplayDialog("警告", "本地数据不存在，是否使用AtlasSpliter进行同步？", "ok", "cancle"))
+                    {
+                        UIAtlasSpliter spliter = EditorWindow.GetWindow<UIAtlasSpliter>(false, "AtlasSpliter", true);
+                        spliter.atlas = mAtlas;
+                    }
+                }
 
             }, false);
-        if (!string.IsNullOrEmpty(mSpriteName))
-        {
-            mTex = AssetDatabase.LoadAssetAtPath(NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/" + mSpriteName, typeof(Texture2D)) as Texture2D;
-        }
-
-        //EditorGUIUtility.LookLikeControls(100f);
-        mTex = (Texture2D)EditorGUILayout.ObjectField("Select Texture:", mTex, typeof(Texture2D), true, GUILayout.ExpandWidth(true));
 
         NGUIEditorTools.DrawSeparator();
 
         if (mTex == null)
+        {
             return;
+        }
         mPath = AssetDatabase.GetAssetPath(mTex);
         mPath = mPath.Substring(0, mPath.Length - mTex.name.Length - ".png".Length - "/".Length);
 
         EditorGUILayout.Separator();
-        GUI.backgroundColor =NGUIHelperSetting.Blue;
+        GUI.backgroundColor = NGUIHelperSetting.Blue;
         mBorderA = NGUIEditorTools.IntPair("Border", "Left", "Right", mBorderA.x, mBorderA.y);
         mBorderB = NGUIEditorTools.IntPair(null, "Top", "Bottom", mBorderB.x, mBorderB.y);
 
@@ -69,26 +80,6 @@ public class UIAtlas9PatchSlicer : EditorWindow
         DrawSmartPart();
         GUILayout.BeginHorizontal();
         EditorGUILayout.Separator();
-        //GUI.backgroundColor = Color.white;
-
-        //GUILayout.Label("from 0",GUILayout.Width(50));
-        //mSmartCoff = GUILayout.HorizontalSlider(mSmartCoff, 0, 0.3f,GUILayout.Width(150));
-        //GUILayout.Label("to 0.3", GUILayout.Width(50));
-        //mSmartCoff=float.Parse(GUILayout.TextField(mSmartCoff.ToString("F2"), GUILayout.Width(50)));
-
-        //if (GUILayout.Button("Smart Slice", GUILayout.Width(76f)))
-        //{
-        //    //Debug.Log("split...");
-        //    //Slice();
-        //    SmartSlice();
-        //}
-
-        //GUI.backgroundColor = Color.green;
-        //if (GUILayout.Button("Slice", GUILayout.Width(76f)))
-        //{
-        //    //Debug.Log("split...");
-        //    Slice();
-        //}
 
         GUILayout.EndHorizontal();
         EditorGUILayout.Separator();
@@ -102,58 +93,71 @@ public class UIAtlas9PatchSlicer : EditorWindow
         }
         mRect = new Rect(AnchorX, AnchorY, mTex.width * mCoff, mTex.height * mCoff);
 
-        //mPos = GUILayout.BeginScrollView(mPos);
         GUI.DrawTextureWithTexCoords(mRect, mTex, new Rect(0, 0, 1, 1));
-        //GUILayout.EndScrollView();
-        if (mPreviewTex!=null)
+        if (mPreviewTex != null)
         {
             Rect rect = new Rect(AnchorX + mTex.width * mCoff + 100, AnchorY, mPreviewTex.width * mCoff, mPreviewTex.height * mCoff);
             GUI.DrawTexture(rect, mPreviewTex);
         }
-
 
         DrawBorder();
     }
     float mSmartCoff = 0.01f;//允许像素有一定的偏差
     float mAbnormalCoff = 0.02f;//允许有几个像素超出偏差
     float mShrinkRatio = 0;
+
+    bool mEnableXSlice = true;
+    bool mEnableYSlice = true;
     void DrawSmartPart()
     {
-        GUILayout.BeginHorizontal();
-        EditorGUILayout.Separator();
         GUI.backgroundColor = Color.white;
+        GUILayout.BeginHorizontal();
+        {
+            mEnableXSlice = GUILayout.Toggle(mEnableXSlice, "enable x slice");
 
-        GUILayout.Label("SmartCoff:from 0", GUILayout.Width(140));
-        mSmartCoff = GUILayout.HorizontalSlider(mSmartCoff, 0, 0.3f, GUILayout.Width(150));
-        GUILayout.Label("to 0.3", GUILayout.Width(50));
-        mSmartCoff = float.Parse(GUILayout.TextField(mSmartCoff.ToString(), GUILayout.Width(50)));
+            EditorGUILayout.Separator();
+            GUILayout.Label("SmartCoff:from 0", GUILayout.Width(140));
+            mSmartCoff = GUILayout.HorizontalSlider(mSmartCoff, 0, 0.3f, GUILayout.Width(150));
+            GUILayout.Label("to 0.3", GUILayout.Width(50));
+            mSmartCoff = float.Parse(GUILayout.TextField(mSmartCoff.ToString(), GUILayout.Width(50)));
+        }
         GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        {
+            mEnableYSlice = GUILayout.Toggle(mEnableYSlice, "enable y slice");
+            EditorGUILayout.Separator();
+
+            GUILayout.Label("AbnormalCoff:from 0", GUILayout.Width(140));
+            mAbnormalCoff = GUILayout.HorizontalSlider(mAbnormalCoff, 0, 0.3f, GUILayout.Width(150));
+            GUILayout.Label("to 0.3", GUILayout.Width(50));
+            mAbnormalCoff = float.Parse(GUILayout.TextField(mAbnormalCoff.ToString(), GUILayout.Width(50)));
+        }
+        GUILayout.EndHorizontal();
+
+
+
         GUILayout.BeginHorizontal();
         EditorGUILayout.Separator();
-        GUILayout.Label("AbnormalCoff:from 0", GUILayout.Width(140));
-        mAbnormalCoff = GUILayout.HorizontalSlider(mAbnormalCoff, 0, 0.3f, GUILayout.Width(150));
-        GUILayout.Label("to 0.3", GUILayout.Width(50));
-        mAbnormalCoff = float.Parse(GUILayout.TextField(mAbnormalCoff.ToString(), GUILayout.Width(50)));
-        GUILayout.EndHorizontal();
-        GUILayout.BeginHorizontal();
-        EditorGUILayout.Separator();
-        GUILayout.Label(string.Format("shrink ratio:{0:p}",mShrinkRatio));
+        GUILayout.Label(string.Format("shrink ratio:{0:p}", mShrinkRatio));
         if (GUILayout.Button("Smart Slice", GUILayout.Width(76f)))
         {
             //Debug.Log("split...");
             //Slice();
             SmartSlice();
         }
-        if (GUILayout.Button("Preview",GUILayout.Width(76f)))
+        if (GUILayout.Button("Preview", GUILayout.Width(76f)))
         {
             mPreviewTex = Slice();
-            mShrinkRatio =1- (float)mPreviewTex.width * mPreviewTex.height / (mTex.width * mTex.height);
+            mShrinkRatio = 1 - (float)mPreviewTex.width * mPreviewTex.height / (mTex.width * mTex.height);
         }
         GUI.backgroundColor = Color.green;
         if (GUILayout.Button("Slice", GUILayout.Width(76f)))
         {
             //Debug.Log("split...");
-            SaveTexture(Slice(), mTex.name);
+            Texture2D output = Slice();
+            SaveTexture(output, mTex.name);
+            //mSpriteEntry.maxX
 
             Resources.UnloadUnusedAssets();
         }
@@ -302,36 +306,39 @@ public class UIAtlas9PatchSlicer : EditorWindow
 
         const int ReservePixNum = 1;//至少保留多少个像素
         int middle = mTex.width / 2;
-        Color[] pixRow = mTex.GetPixels(middle, 0, 1, mTex.height);
         int left = middle;
-        while (left > ReservePixNum)
-        {
-            Color[] pixLeftRow = mTex.GetPixels(left, 0, 1, mTex.height);
-
-            int abnormalTime = 0;
-            for (int i = 0; i < pixRow.Length; i++)
-            {
-                if (!ComparePixel(pixRow[i], pixLeftRow[i]))
-                    abnormalTime++;
-            }
-            if ((float)abnormalTime / mTex.height > mAbnormalCoff)
-                break;
-            left--;
-        }
-
         int right = middle;
-        while (right < mTex.width - ReservePixNum)
+        Color[] pixRow = mTex.GetPixels(middle, 0, 1, mTex.height);
+        if (mEnableXSlice)
         {
-            Color[] pixRightRow = mTex.GetPixels(right, 0, 1, mTex.height);
-            int abnormalTime = 0;
-            for (int i = 0; i < pixRow.Length; i++)
+            while (left > ReservePixNum)
             {
-                if (!ComparePixel(pixRow[i], pixRightRow[i]))
-                    abnormalTime++;
+                Color[] pixLeftRow = mTex.GetPixels(left, 0, 1, mTex.height);
+
+                int abnormalTime = 0;
+                for (int i = 0; i < pixRow.Length; i++)
+                {
+                    if (!ComparePixel(pixRow[i], pixLeftRow[i]))
+                        abnormalTime++;
+                }
+                if ((float)abnormalTime / mTex.height > mAbnormalCoff)
+                    break;
+                left--;
             }
-            if ((float)abnormalTime / mTex.height > mAbnormalCoff)
-                break;
-            right++;
+
+            while (right < mTex.width - ReservePixNum)
+            {
+                Color[] pixRightRow = mTex.GetPixels(right, 0, 1, mTex.height);
+                int abnormalTime = 0;
+                for (int i = 0; i < pixRow.Length; i++)
+                {
+                    if (!ComparePixel(pixRow[i], pixRightRow[i]))
+                        abnormalTime++;
+                }
+                if ((float)abnormalTime / mTex.height > mAbnormalCoff)
+                    break;
+                right++;
+            }
         }
 
         if (right != left)
@@ -346,48 +353,51 @@ public class UIAtlas9PatchSlicer : EditorWindow
         }
 
         //////////////////////////////////////////////////////////////////////////
-
         middle = mTex.height / 2;
         pixRow = mTex.GetPixels(0, middle, mTex.width, 1);
         int bottom = middle;
-        while (bottom > ReservePixNum)
-        {
-            Color[] pixBottomRow = mTex.GetPixels(0, bottom, mTex.width, 1);
-            int abnormalTime = 0;
-            for (int i = 0; i < pixRow.Length; i++)
-            {
-                if (!ComparePixel(pixRow[i], pixBottomRow[i]))
-                    abnormalTime++;
-            }
-            if ((float)abnormalTime / mTex.height > mAbnormalCoff)
-                break;
-            bottom--;
-        }
-
         int top = middle;
-        while (top < mTex.height - ReservePixNum)
+        if (mEnableYSlice)
         {
-            Color[] pixTopRow = mTex.GetPixels(0, top, mTex.width, 1);
-            int abnormalTime = 0;
-            for (int i = 0; i < pixRow.Length; i++)
+            while (bottom > ReservePixNum)
             {
-                if (!ComparePixel(pixRow[i], pixTopRow[i]))
-                    abnormalTime++;
+                Color[] pixBottomRow = mTex.GetPixels(0, bottom, mTex.width, 1);
+                int abnormalTime = 0;
+                for (int i = 0; i < pixRow.Length; i++)
+                {
+                    if (!ComparePixel(pixRow[i], pixBottomRow[i]))
+                        abnormalTime++;
+                }
+                if ((float)abnormalTime / mTex.height > mAbnormalCoff)
+                    break;
+                bottom--;
             }
-            if ((float)abnormalTime / mTex.height > mAbnormalCoff)
-                break;
-            top++;
+
+            while (top < mTex.height - ReservePixNum)
+            {
+                Color[] pixTopRow = mTex.GetPixels(0, top, mTex.width, 1);
+                int abnormalTime = 0;
+                for (int i = 0; i < pixRow.Length; i++)
+                {
+                    if (!ComparePixel(pixRow[i], pixTopRow[i]))
+                        abnormalTime++;
+                }
+                if ((float)abnormalTime / mTex.height > mAbnormalCoff)
+                    break;
+                top++;
+            }
         }
-        if (top != bottom)
-        {
-            mBorderB.x = bottom;
-            mBorderB.y = mTex.height - top;
-        }
-        else
-        {
-            mBorderB.x = 0;
-            mBorderB.y = 0;
-        }
+            if (top != bottom)
+            {
+                mBorderB.x = bottom;
+                mBorderB.y = mTex.height - top;
+            }
+            else
+            {
+                mBorderB.x = 0;
+                mBorderB.y = 0;
+            }
+        //}
 
     }
 

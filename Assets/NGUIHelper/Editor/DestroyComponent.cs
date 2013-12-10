@@ -7,7 +7,7 @@ using UnityEditor;
 public class DestroyComponent : ScriptableWizard
 {
 
-    [MenuItem("UIEditTool/Destroy Component")]
+    [MenuItem("NGUIHelper/Destroy Component")]
     static void CreateWizard()
     {
         ScriptableWizard.DisplayWizard("Destroy Component", typeof(DestroyComponent), "Close", "Destroy");

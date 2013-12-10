@@ -7,6 +7,15 @@ using Object = UnityEngine.Object;
 
 public class NGUIHelperUtility
 {
+    [MenuItem("NGUIHelper/Output The Selection Path #&g")]
+    public static void OutputTheSelectionPath()
+    {
+        if (Selection.activeGameObject != null)
+        {
+            Debug.Log(GetGameObjectPath(Selection.activeGameObject));
+        }
+    }
+
     public static string GetGameObjectPath(GameObject obj)
     {
         string path = "/" + obj.name;
