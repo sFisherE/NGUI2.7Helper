@@ -5,6 +5,9 @@ using UnityEngine;
 using System.Reflection;
 using UnityEditor;
 
+/// <summary>
+///   清除指定文件夹下所有的gameobject上挂接的component
+/// </summary>
 public class DestroyComponent : ScriptableWizard
 {
 
@@ -81,22 +84,30 @@ public class DestroyComponent : ScriptableWizard
     }
     void OnWizardOtherButton()
     {
-        
+        if (folder != null && !string.IsNullOrEmpty(path))
+        {
+            List<string> paths = NGUIHelperUtility.GetAllPrefabs(path);
+            foreach (var goPath in paths)
+            {
+                GameObject go = AssetDatabase.LoadAssetAtPath(goPath, typeof(GameObject)) as GameObject;
+                Component[] cs = go.GetComponentsInChildren(GetSelectedType(), true);
+                foreach (var c in cs)
+                {
+                    UnityEngine.Object.DestroyImmediate(c, true);
+                }
+            }
+        }
     }
 
     Type GetSelectedType()
     {
-        //Debug.Log(mTypes.Count);
         foreach (Type t in mTypes)
         {
-            //Debug.Log(t.Name);
             if (t.Name == componentName)
             {
-                Debug.Log("find the target "+componentName);
                 return t;
             }
         }
-        Debug.Log("can't find the target "+componentName);
         return null;
     }
 
