@@ -14,7 +14,7 @@ public class UIArtText : MonoBehaviour
     }
     public Pivot pivot;
 
-    public string text;
+    public string text=string.Empty;
     public string font;
     public UIAtlas atlas;
 
@@ -39,10 +39,10 @@ public class UIArtText : MonoBehaviour
         {
             char c = text[i];
             UISprite sprite = NGUITools.AddChild<UISprite>(transform.gameObject);
-            sprite.gameObject.layer = NGUIHelperControlCenter.BaseLayer;
+            sprite.gameObject.layer = gameObject.layer;// NGUIHelperControlCenter.BaseLayer;
             sprite.gameObject.name = i.ToString();
             sprite.atlas = atlas;
-            sprite.spriteName = font + "_" + ((int)c).ToString();
+            sprite.spriteName = font + ArtFontSettings.SeparatorChar + ((int)c).ToString();
             sprite.pivot = UISprite.Pivot.BottomLeft;
             sprite.MakePixelPerfect();
         }

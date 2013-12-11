@@ -7,8 +7,8 @@ using UnityEngine;
 /// </summary>
 public class NGUIHelperControlCenter
 {
-    public static DragEventFilterMode dragEventFilteMode;
-    public static int BaseLayer = LayerMask.NameToLayer("UI");
+    //public static DragEventFilterMode dragEventFilteMode;
+    //public static int BaseLayer = LayerMask.NameToLayer("UI");
 
 
 }

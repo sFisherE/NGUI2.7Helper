@@ -239,7 +239,7 @@ class UIAtlasExchanger : EditorWindow
                 AtlasUtility.UpdateAtlas(mAtlasB, spritesFormB);
 
                 //将相应的使用的sprite的spritename换掉
-                List<string> paths = NGUIHelperUtility.GetAllPrefabs(NGUIHelperSetting.GetPrefabPath());
+                List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(NGUIHelperSetting.GetPrefabPath());
                 foreach (var path in paths)
                 {
                     GameObject go = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject;

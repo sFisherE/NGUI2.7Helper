@@ -61,7 +61,7 @@ public class ReplaceSprite : ScriptableWizard
     {
         if (path != null)
         {
-            List<string> paths = NGUIHelperUtility.GetAllPrefabs(path);
+            List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(path);
 
             foreach (var goPath in paths)
             {

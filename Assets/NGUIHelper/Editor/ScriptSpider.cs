@@ -10,7 +10,7 @@ using System;
 using Object= UnityEngine.Object;
 public class ScriptSpider : EditorWindow
 {
-    [MenuItem("NGUIHelper/Script Spider")]
+    [MenuItem("NGUIHelper/Find/Script Spider")]
     static void Init()
     {
         ScriptSpider window = (ScriptSpider)EditorWindow.GetWindow(typeof(ScriptSpider), false, "Script Spider");
@@ -70,47 +70,46 @@ public class ScriptSpider : EditorWindow
         //ComponentSelector.Draw<Object>("Select", mMonoFile, OnSelectMonoBehaviour);
         mScript = EditorGUILayout.ObjectField("Select Script:", mScript, typeof(Object), false) as Object;
         //判断是不是一个类
+if (mScript!=null)
+{
+    string path = AssetDatabase.GetAssetPath(mScript);
+
+}
+
     }
 
 
     string mPath;
-    UnityEngine.Object mFolder;
-    void OnSelectFolder(UnityEngine.Object obj)
-     {
-         mFolder = obj;
-         if (mFolder!=null)
-        {
-            mPath = AssetDatabase.GetAssetPath(mFolder);
-
-            mPrefabNames.Clear();
-            mPrefabNames = NGUIHelperUtility.GetAllPrefabs(mPath);
-        }
-     }
+    Object mFolder;
     void DrawSelectPath()
     {
-        GUILayout.BeginHorizontal();
+        mFolder = EditorGUILayout.ObjectField("Select Path:", mFolder, typeof(Object), false) as Object;
+        if (mFolder != null)
         {
-            mFolder = EditorGUILayout.ObjectField("Select Path:", mFolder, typeof(Object), false) as Object;
-            if (mFolder != null)
+            string path = AssetDatabase.GetAssetPath(mFolder);
+            if (NGUIHelperUtility.IsDirectory(path))
             {
-                mPath = AssetDatabase.GetAssetPath(mFolder);
-                mPrefabNames.Clear();
-                mPrefabNames = NGUIHelperUtility.GetAllPrefabs(mPath);
+                mPath = path;
+                GUILayout.Label("you select a path:    " + mPath);
             }
-            GUILayout.Label(mPath);
+            else
+            {
+                mPath = string.Empty;
+                EditorGUILayout.HelpBox("please select a folder", MessageType.Warning);
+            }
         }
-        GUILayout.EndHorizontal();
     }
     List<string> mPrefabNames = new List<string>();
 
-    Vector2 mScroll2 = Vector2.zero;
+    //Vector2 mScroll2 = Vector2.zero;
     Vector2 mScroll = Vector2.zero;
     GUIStyle mStyle = new GUIStyle();
     bool mShowRelatedSprites = false;
     void OnGUI()
     {
-        DrawSelectPath();
         DrawSelectAtlas();
+        NGUIEditorTools.DrawSeparator();
+        DrawSelectPath();
         NGUIEditorTools.DrawSeparator();
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("Detect", GUILayout.Width(200)))

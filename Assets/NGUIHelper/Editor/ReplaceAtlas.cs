@@ -58,7 +58,7 @@ public class ReplaceAtlas : ScriptableWizard
     {
         if (folder!=null && !string.IsNullOrEmpty(path))
         {
-            List<string> paths = NGUIHelperUtility.GetAllPrefabs(path);
+            List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(path);
             foreach (var goPath in paths)
             {
                 GameObject go = AssetDatabase.LoadAssetAtPath(goPath, typeof(GameObject)) as GameObject;

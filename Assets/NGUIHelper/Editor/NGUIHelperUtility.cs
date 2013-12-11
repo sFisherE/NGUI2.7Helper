@@ -7,6 +7,15 @@ using Object = UnityEngine.Object;
 
 public class NGUIHelperUtility
 {
+    //便捷的测试函数
+    [MenuItem("NGUIHelper/Test #&t")]
+    public static void Test()
+    {
+        //string path = AssetDatabase.GetAssetPath(Selection.activeInstanceID);
+        //IsScript(path);
+    }
+
+
     [MenuItem("NGUIHelper/Output The Selection Path #&g")]
     public static void OutputTheSelectionPath()
     {
@@ -35,19 +44,19 @@ public class NGUIHelperUtility
 
 
     #region 获取prefab
-    public static List<string> GetAllPrefabs(string path)
+    public static List<string> GetPrefabsRecursive(string path)
     {
         //mPrefabPaths.Clear();
         List<string> paths = new List<string>();
         DirectoryInfo dirInfo = new DirectoryInfo(path);
         if (dirInfo != null)
         {
-            GetAllPrefabs(dirInfo, paths);
+            GetPrefabsRecursive(dirInfo, paths);
         }
 
         return paths;
     }
-    static void GetAllPrefabs(FileSystemInfo info, List<string> paths)
+    static void GetPrefabsRecursive(FileSystemInfo info, List<string> paths)
     {
         DirectoryInfo dir = info as DirectoryInfo;
         if (dir == null) return;//不是目录 
@@ -65,7 +74,7 @@ public class NGUIHelperUtility
         {
             FileInfo file = files[i] as FileInfo;
             if (file == null)//对于子目录，进行递归调用 
-                GetAllPrefabs(files[i], paths);
+                GetPrefabsRecursive(files[i], paths);
         }
     }
     #endregion
@@ -119,6 +128,22 @@ public class NGUIHelperUtility
             return false;
     }
 
+    public static bool IsScript(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+        {
+            return false;
+        }
+        FileAttributes attr = File.GetAttributes(path);
+        FileInfo fi = new FileInfo(path);
+        Debug.Log(fi.Extension);
+        if (fi.Extension == ".cs" || fi.Extension == ".js"||fi.Extension==".boo")
+            return true;
+        else
+            return false;
+    }
+
+
 
     //[MenuItem("UIEditTool/Destory All The Missing MonoBehaviour")]
     public static void DestoryAllTheMissMonoBehaviour()
@@ -133,7 +158,7 @@ public class NGUIHelperUtility
         {
             Debug.Log(path + " " + IsDirectory(path));
 
-            List<string> paths = NGUIHelperUtility.GetAllPrefabs(path);
+            List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(path);
 
             //Object[] os = AssetDatabase.LoadAllAssetRepresentationsAtPath(path);
             //Debug.Log(os.Length);

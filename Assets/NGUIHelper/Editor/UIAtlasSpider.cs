@@ -8,13 +8,10 @@ using UnityEngine;
 /// <summary>
 ///   侦测某个atlas的使用情况，被那个prefab所使用
 ///   侦测某个atlas里面哪个元素没有被使用过，这样便于清理
-///   
-/// roadmap:
-/// 统计每个sprite的使用频次，有多少个界面元素用到了
 /// </summary>
 public class UIAtlasSpider : EditorWindow
 {
-    [MenuItem("NGUIHelper/Atlas Spider")]
+    [MenuItem("NGUIHelper/Find/Atlas Spider")]
     static void Init()
     {
         UIAtlasSpider window = (UIAtlasSpider)EditorWindow.GetWindow(typeof(UIAtlasSpider), false, "Atlas Spider");
@@ -22,36 +19,32 @@ public class UIAtlasSpider : EditorWindow
 
     UIAtlas mSelectAtlas;
 
-    void OnSelectAtlas(Object obj)
-    {
-        UIAtlas atlas = obj as UIAtlas;
-
-        if (mSelectAtlas != atlas)
-        {
-            if (mSelectAtlas != null)
-            {
-                spriteUseStates.Clear();
-                foreach (UIAtlas.Sprite s in mSelectAtlas.spriteList)
-                {
-                    spriteUseStates.Add(s.name, new SpriteEntry(s.name, false));
-                }
-            }
-        }
-        mSelectAtlas = atlas;
-        Repaint();
-    }
     void DrawSelectAtlas()
     {
-        ComponentSelector.Draw<UIAtlas>("Select", mSelectAtlas, OnSelectAtlas);
-        //ComponentSelector.Draw<UIAtlas>("Select", mSelectAtlas, OnSelectAtlas, true);
+        ComponentSelector.Draw<UIAtlas>("Select", mSelectAtlas, obj =>
+            {
+                UIAtlas atlas = obj as UIAtlas;
+                if (mSelectAtlas != atlas)
+                {
+                    mSelectAtlas = atlas;
+                    spriteUseStates.Clear();
+                    if (mSelectAtlas != null)
+                    {
+                        foreach (UIAtlas.Sprite s in mSelectAtlas.spriteList)
+                        {
+                            spriteUseStates.Add(s.name, new SpriteEntry(s.name, false));
+                        }
+                    }
+                }
+                Repaint();
+            });
         GUILayout.BeginHorizontal();
         {
             //编辑器刷新之后可能刷掉数据了，所以当没有数据的时候强制再去获取一次
-            if (spriteUseStates.Count==0)
+            if (spriteUseStates.Count == 0)
             {
                 if (mSelectAtlas != null)
                 {
-                    //mSelectAtlasName = mSelectAtlas.spriteMaterial.mainTexture.name;
                     spriteUseStates.Clear();
                     foreach (UIAtlas.Sprite s in mSelectAtlas.spriteList)
                     {
@@ -64,86 +57,32 @@ public class UIAtlasSpider : EditorWindow
     }
 
     string mPath;
-    bool mShowPrefabs = false;
      Object mFolder;
-    void OnSelectFolder(Object obj)
+     void DrawSelectPath()
      {
-         mFolder = obj;
-         if (mFolder!=null)
-        {
-            mPath = AssetDatabase.GetAssetPath(mFolder);
-
-            mPrefabNames.Clear();
-            mPrefabNames = NGUIHelperUtility.GetAllPrefabs(mPath);
-        }
+         mFolder = EditorGUILayout.ObjectField("Select Path:", mFolder, typeof(Object), false) as Object;
+         if (mFolder != null)
+         {
+             string path = AssetDatabase.GetAssetPath(mFolder);
+             if (NGUIHelperUtility.IsDirectory(path))
+             {
+                 mPath = path;
+                 GUILayout.Label("you select a path:    " + mPath);
+             }
+             else
+             {
+                 mPath = string.Empty;
+                 EditorGUILayout.HelpBox("please select a folder", MessageType.Warning);
+             }
+         }
      }
-    void DrawSelectPath()
-    {
-        GUILayout.BeginHorizontal();
-        {
-            //ComponentSelector.Draw<Object>("Select", mFolder, OnSelectFolder);
-            mFolder = EditorGUILayout.ObjectField("Select Path:", mFolder, typeof(Object), false) as Object;
-            //mFolder = EditorGUILayout.ObjectField(mFolder, typeof(Object), false) as Object;
-            if (mFolder != null)
-            {
-                mPath = AssetDatabase.GetAssetPath(mFolder);
 
-                mPrefabNames.Clear();
-                mPrefabNames = NGUIHelperUtility.GetAllPrefabs(mPath);
-            }
-            GUILayout.Label(mPath);
-        }
-        GUILayout.EndHorizontal();
 
-        GUILayout.BeginHorizontal();
-        {
-            if (GUILayout.Button("Instantiate All the Prefabs", GUILayout.Width(200)))
-            {
-                if (!string.IsNullOrEmpty(mPath))
-                {
-                    GameObject panel = UICreateNewUIWizard.CreateNewUI();
-                    GameObject parent = EditorUtility.CreateGameObjectWithHideFlags(RootName, HideFlags.DontSave);
-                    parent.transform.parent = panel.transform;
-                    parent.transform.localPosition = Vector3.zero;
-                    foreach (string item in mPrefabNames)
-                    {
-                        GameObject go = NGUIHelperUtility.InstantiatePrefab(item);
-                        if (go != null)
-                            go.transform.parent = parent.transform;
-                    }
-                }
-            }
-        }
-        GUILayout.EndHorizontal();
-
-        mShowPrefabs = EditorGUILayout.Foldout(mShowPrefabs, "Show Prefabs");
-        if (mShowPrefabs)
-        {
-            //Debug.Log(mPath);
-            if (!string.IsNullOrEmpty(mPath))
-            {
-                mScroll2 = GUILayout.BeginScrollView(mScroll2, GUILayout.MinHeight(200));
-                {
-                    //mPrefabNames.Clear();
-                    //mPrefabNames = NGUIEditorToolsExt.GetAllPrefabs(mPath);
-                    foreach (string name in mPrefabNames)
-                    {
-                        GUILayout.BeginHorizontal();
-                        {
-                            GUILayout.Label(name);
-                        }
-                        GUILayout.EndHorizontal();
-                    }
-                }
-                GUILayout.EndScrollView();
-            }
-        }
-    }
     List<string> mPrefabNames = new List<string>();
 
-    Vector2 mScroll2 = Vector2.zero;
     Vector2 mScroll = Vector2.zero;
     GUIStyle mStyle = new GUIStyle();
+    bool mShowPrefabs = false;
 
     class SpriteEntry
     {
@@ -169,7 +108,6 @@ public class UIAtlasSpider : EditorWindow
                 {
                     foreach (UIAtlas.Sprite s in mSelectAtlas.spriteList)
                     {
-                        
                         if (spriteUseStates.ContainsKey(s.name))
                         {
                             GUILayout.BeginHorizontal();
@@ -198,16 +136,9 @@ public class UIAtlasSpider : EditorWindow
                                             string path = NGUIHelperUtility.GetGameObjectPath(go);
                                             //path = path.Substring(("/" + RootName).Length);
 
-                                            if (NGUITools.GetActive(go))
-                                            {
-                                                //GUI.backgroundColor = Color.black;
+
                                                 GUI.contentColor = Color.black;
-                                            }
-                                            else
-                                            {
-                                                //GUI.backgroundColor = Color.gray;
-                                                GUI.contentColor = Color.gray;
-                                            }
+                  
 
                                             GUIStyle style = EditorStyles.whiteLabel;
                                             if (Selection.activeGameObject == go)
@@ -234,11 +165,10 @@ public class UIAtlasSpider : EditorWindow
     }
     void OnGUI()
     {
-        DrawSelectPath();
         DrawSelectAtlas();
         NGUIEditorTools.DrawSeparator();
-        //DrawTestButton();
-        //SetSpriteUseState(NGUIEditorTools.FindAll<UISprite>());
+        DrawSelectPath();
+        NGUIEditorTools.DrawSeparator();
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("Detect", GUILayout.Width(200)))
         {
@@ -248,24 +178,10 @@ public class UIAtlasSpider : EditorWindow
         GUILayout.EndHorizontal();
         DrawWidgets();
     }
-    const string RootName = "SpiderRoot";
-    //void DrawTestButton()
-    //{
-    //    GUILayout.BeginHorizontal();
-    //    {
-    //        if (GUILayout.Button("Start Detect", GUILayout.Width(150)))
-    //        {
-    //            SetSpriteUseState(NGUIEditorTools.FindAll<UISprite>());
-    //        }
-    //        GUILayout.Space(50);
-    //        mShowRelatedSprites = EditorGUILayout.Toggle("Show Related Sprite", mShowRelatedSprites);
-    //    }
-    //    GUILayout.EndHorizontal();
-    //}
 
     void GetSpriteUseState()
     {
-        mPrefabNames = NGUIHelperUtility.GetAllPrefabs(mPath);
+        mPrefabNames = NGUIHelperUtility.GetPrefabsRecursive(mPath);
         foreach (var path in mPrefabNames)
         {
             GameObject go = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject;

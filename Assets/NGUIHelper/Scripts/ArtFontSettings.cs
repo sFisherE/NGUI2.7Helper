@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class ArtFontSettings : ScriptableObject
 {
+    public const char SeparatorChar = '#';
+
     public List<ArtFont> artFonts;
 
 

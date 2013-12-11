@@ -65,6 +65,13 @@ public class ArtFontUtility
     /// </summary>
     static string ReadArtFontTxt(string path)
     {
+        FileInfo fi = new FileInfo(path);
+        if (!fi.Exists)
+        {
+            Debug.LogError("lack font content file");
+            return null;
+        }
+
         StreamReader reader = new StreamReader(path);
         StringBuilder sb = new StringBuilder();
         if (reader != null)
@@ -95,7 +102,6 @@ public class ArtFontUtility
     }
 
 
-
     [MenuItem("NGUIHelper/ArtFont/Generate ArtFont")]
     public static void GenerateArtFont()
     {
@@ -105,13 +111,38 @@ public class ArtFontUtility
         DirectoryInfo dirInfo = new DirectoryInfo(NGUIHelperSetting.CreateNGUIHelperSetting().artFontProtoPath);
         //写入文件
         Dictionary<string, string> charDic = new Dictionary<string, string>();
+        List<string> fontTypes = new List<string>();
         foreach (var v in afs.artFonts)
         {
+            fontTypes.Add(v.name);
             foreach (var c in v.content.ToCharArray())
             {
+                //先把文件中相应的图片字删掉
                 charDic.Add(c.ToString(), ((int)c).ToString());
+
             }
         }
+
+        DirectoryInfo outputDir = new DirectoryInfo(NGUIHelperSetting.CreateNGUIHelperSetting().artFontProtoPath+"/Output");
+        FileInfo[] fs = outputDir.GetFiles("*.png");
+        int clipLength=".png".Length;
+        foreach (var  f in fs)
+        {
+            //看#之前的字符串是不是已经有的图片字体
+           string[] strs= f.Name.Split(ArtFontSettings.SeparatorChar);
+            if (strs.Length>0)
+            {
+                string name = strs[0];
+                if (fontTypes.Contains(name))
+                {
+                    Debug.Log("delete file");
+                    f.Delete();
+                }
+            }
+
+        }
+        AssetDatabase.Refresh();
+
 
         StringBuilder sb = new StringBuilder();
         string fullname = dirInfo.FullName;
@@ -172,7 +203,7 @@ public class ArtFontUtility
 		    }
 		    var doc2 = doc.duplicate(""buildTemp"");
 		    doc2.trim(TrimType.TRANSPARENT,false);
-		    var pngFile=File(langPath+""/Output/""+font+""_""+charHexs[s]+"".png"");
+		    var pngFile=File(langPath+""/Output/""+font+""#""+charHexs[s]+"".png"");
 		    doc2.saveAs(pngFile, new PNGSaveOptions(), true, Extension.LOWERCASE);
 		    doc2.close(SaveOptions.DONOTSAVECHANGES);
 	    }
