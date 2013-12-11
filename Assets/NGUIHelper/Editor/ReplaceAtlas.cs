@@ -6,44 +6,44 @@ using UnityEditor;
 /// <summary>
 ///   replace the font with another font
 /// </summary>
-public class ReplaceFont : ScriptableWizard
+public class ReplaceAtlas : ScriptableWizard
 {
-    [MenuItem("NGUIHelper/Replace/Replace Font")]
+    [MenuItem("NGUIHelper/Replace/Replace Atlas")]
     static void CreateWizard()
     {
-        ScriptableWizard.DisplayWizard<ReplaceFont>("Replace Font", "Close", "Replace");
+        ScriptableWizard.DisplayWizard<ReplaceAtlas>("Replace Atlas", "Close", "Replace");
     }
 
-    public ReplaceFont()
+    public ReplaceAtlas()
     {
         Load();
     }
     void Load()
     {
-        fontFrom = NGUIHelperSetting.instance.replace_fontFrom;
-        fontTo = NGUIHelperSetting.instance.replace_fontTo;
-        scaleCoeff = NGUIHelperSetting.instance.replace_fontscaleCoeff;
+        atlasFrom = NGUIHelperSetting.instance.replace_atlasFrom;
+        atlasTo = NGUIHelperSetting.instance.replace_atlasTo;
     }
     void Save()
     {
-        NGUIHelperSetting.instance.replace_fontFrom = fontFrom;
-        NGUIHelperSetting.instance.replace_fontTo = fontTo;
-        NGUIHelperSetting.instance.replace_fontscaleCoeff = scaleCoeff;
+        NGUIHelperSetting.instance.replace_atlasFrom= atlasFrom;
+        NGUIHelperSetting.instance.replace_atlasTo=atlasTo;
     }
     void OnWizardCreate()
     {
+        //Save();
+        //UIAtlas temp = atlasFrom;
+        //atlasFrom = atlasTo;
+        //atlasTo = temp;
+
         Save();
     }
 
-
-    public UIFont fontFrom;
-    public UIFont fontTo;
+    public UIAtlas atlasFrom;
+    public UIAtlas atlasTo;
     public Object folder;
     public string path;
 
     public GameObject target;
-    //dynamic font label is always bigger than the bmp font label
-    public Vector3 scaleCoeff =Vector3.one;
 
     void OnWizardUpdate()
     {
@@ -58,7 +58,6 @@ public class ReplaceFont : ScriptableWizard
     {
         if (folder!=null && !string.IsNullOrEmpty(path))
         {
-            Debug.Log("path:"+path);
             List<string> paths = NGUIHelperUtility.GetAllPrefabs(path);
             foreach (var goPath in paths)
             {
@@ -79,18 +78,23 @@ public class ReplaceFont : ScriptableWizard
     {
         if (go != null)
         {
-            UILabel[] labels = go.GetComponentsInChildren<UILabel>(true);
+            UISprite[] labels = go.GetComponentsInChildren<UISprite>(true);
+            bool change = false;
             foreach (var v in labels)
             {
-                if (fontFrom != null && fontTo != null)
+                if (atlasFrom!= null && atlasTo!= null)
                 {
-                    if (v.font == fontFrom)
+                    if (v.atlas== atlasFrom)
                     {
-                        v.font = fontTo;
-                        Vector3 from = v.transform.localScale;
-                        v.transform.localScale = new Vector3(from.x * scaleCoeff.x, from.y * scaleCoeff.y, 1);
+                        change = true;
+                        v.atlas= atlasTo;
+                        v.MakePixelPerfect();
                     }
                 }
+            }
+            if (change)
+            {
+                EditorUtility.SetDirty(go);
             }
         }
     }

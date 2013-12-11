@@ -8,7 +8,7 @@ using UnityEditor;
 /// </summary>
 public class ReplaceSprite : ScriptableWizard
 {
-    [MenuItem("NGUIHelper/Replace Sprite")]
+    [MenuItem("NGUIHelper/Replace/Replace Sprite")]
     static void CreateWizard()
     {
         ScriptableWizard.DisplayWizard<ReplaceSprite>("Replace Sprite", "Close", "Replace");
