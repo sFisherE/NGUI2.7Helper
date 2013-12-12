@@ -1,5 +1,4 @@
-﻿//using System;
-using System.IO;
+﻿using System.IO;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEditor;
@@ -24,8 +23,8 @@ public class UIFontSpider : EditorWindow
     Object mFolder;
     void DrawSelectPath()
     {
-       Object folder = EditorGUILayout.ObjectField("Select Path:", mFolder, typeof(Object), false) as Object;
-        if (folder!=mFolder)
+        Object folder = EditorGUILayout.ObjectField("Select Path:", mFolder, typeof(Object), false) as Object;
+        if (folder != mFolder)
         {
             mFolder = folder;
             mRelatedGameObjects.Clear();
@@ -50,61 +49,59 @@ public class UIFontSpider : EditorWindow
     List<string> mPrefabNames = new List<string>();
 
     Vector2 mScroll = Vector2.zero;
-    GUIStyle mStyle = new GUIStyle();
     bool mShowSpecific = false;
-    //string mComponentName;
-    //bool mFindComponent;
+
+    UIFont mFont;
     void OnGUI()
     {
-       //string componentName = EditorGUILayout.TextField("Component Name: ", mComponentName);
-        //if (componentName!=mComponentName)
-        //{
-        //    mRelatedGameObjects.Clear();
-        //    mComponentName = componentName;
-        //}
+        ComponentSelector.Draw<UIFont>("Select", mFont, obj =>
+            {
+                UIFont font = obj as UIFont;
+                if (font != mFont)
+                    mFont = font;
+            });
 
 
         NGUIEditorTools.DrawSeparator();
         DrawSelectPath();
         NGUIEditorTools.DrawSeparator();
-        //if (mFindComponent)
-        //{
-        //    GUILayout.BeginHorizontal();
-        //    if (GUILayout.Button("Detect", GUILayout.Width(200)))
-        //    {
-        //        mRelatedGameObjects.Clear();
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Detect", GUILayout.Width(200)))
+        {
+            mRelatedGameObjects.Clear();
 
-        //        List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(mPath);
-        //        foreach (var p in paths)
-        //        {
-        //            bool find = false;
-        //            GameObject go = AssetDatabase.LoadAssetAtPath(p, typeof(GameObject)) as GameObject;
-        //            Component[] cs = go.GetComponentsInChildren(GetSelectedType(), true);
-        //            if (cs.Length>0)
-        //            {
-        //                find = true;
-        //            }
-        //            if (find)
-        //            {
-        //                mRelatedGameObjects.Add(go);
-        //            }
-        //        }
-        //    }
-        //    mShowSpecific = EditorGUILayout.Toggle("Show Specific", mShowSpecific);
-        //    GUILayout.EndHorizontal();
-        //}
+            List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(mPath);
+            foreach (var p in paths)
+            {
+                GameObject go = AssetDatabase.LoadAssetAtPath(p, typeof(GameObject)) as GameObject;
+                UILabel[] labels = go.GetComponentsInChildren<UILabel>(true);
+                bool find = false;
+                foreach (var l in labels)
+                {
+                    if (l.font == mFont)
+                    {
+                        find = true;
+                        break;
+                    }
+                }
+                if (find)
+                {
+                    mRelatedGameObjects.Add(go);
+                }
+            }
+        }
+        mShowSpecific = EditorGUILayout.Toggle("Show Specific", mShowSpecific);
+        GUILayout.EndHorizontal();
         DrawRelatedGameObject();
     }
-    List<GameObject> mRelatedGameObjects=new List<GameObject>();
+    List<GameObject> mRelatedGameObjects = new List<GameObject>();
     void DrawRelatedGameObject()
     {
         mScroll = GUILayout.BeginScrollView(mScroll);
         {
             foreach (var g in mRelatedGameObjects)
             {
-                //GUILayout.Label(AssetDatabase.GetAssetPath(g));
-
-                if (Selection.activeGameObject ==g)
+                if (Selection.activeGameObject == g)
                     GUI.contentColor = Color.blue;
                 else
                     GUI.contentColor = Color.black;
@@ -114,35 +111,27 @@ public class UIFontSpider : EditorWindow
                 }
                 if (mShowSpecific)
                 {
-                    //Component[] cs = g.GetComponentsInChildren(GetSelectedType(), true);
-                    //foreach (var c in cs)
-                    //{
-                    //    GUILayout.BeginHorizontal();
-                    //    GUILayout.Space(30f);
-                    //    string path = NGUIHelperUtility.GetGameObjectPath(c.gameObject);
-                    //    if (Selection.activeGameObject ==c.gameObject)
-                    //        GUI.contentColor = Color.blue;
-                    //    else
-                    //        GUI.contentColor = new Color32(70, 70, 70, 255);
-                    //    if (GUILayout.Button(path, EditorStyles.whiteLabel, GUILayout.MinWidth(100f)))
-                    //    {
-                    //        Selection.activeGameObject = c.gameObject;
-                    //    }
-                    //    GUILayout.EndHorizontal();
-                    //}
-                }
+                    UILabel[] labels = g.GetComponentsInChildren<UILabel>(true);
+                    labels = Array.FindAll(labels, p => p.font == mFont);
 
+                    foreach (var label in labels)
+                    {
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Space(30f);
+                        string path = NGUIHelperUtility.GetGameObjectPath(label.gameObject);
+                        if (Selection.activeGameObject == label.gameObject)
+                            GUI.contentColor = Color.blue;
+                        else
+                            GUI.contentColor = new Color32(70, 70, 70, 255);
+                        if (GUILayout.Button(path, EditorStyles.whiteLabel, GUILayout.MinWidth(100f)))
+                        {
+                            Selection.activeGameObject = label.gameObject;
+                        }
+                        GUILayout.EndHorizontal();
+                    }
+                }
             }
         }
         GUILayout.EndScrollView();
     }
-
-
-    /// <summary>
-    ///   实时更新
-    /// </summary>
-    //void OnInspectorUpdate()
-    //{
-    //    Repaint();
-    //} 
 }

@@ -101,14 +101,9 @@ public class ComponentSpider : EditorWindow
                 List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(mPath);
                 foreach (var p in paths)
                 {
-                    bool find = false;
                     GameObject go = AssetDatabase.LoadAssetAtPath(p, typeof(GameObject)) as GameObject;
                     Component[] cs = go.GetComponentsInChildren(GetSelectedType(), true);
                     if (cs.Length>0)
-                    {
-                        find = true;
-                    }
-                    if (find)
                     {
                         mRelatedGameObjects.Add(go);
                     }

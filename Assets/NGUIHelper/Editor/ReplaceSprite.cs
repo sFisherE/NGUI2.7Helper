@@ -34,6 +34,7 @@ public class ReplaceSprite : ScriptableWizard
     {
         NGUIHelperSetting.instance.replace_atlasFrom = atlasFrom;
         NGUIHelperSetting.instance.replace_atlasTo = atlasTo;
+        EditorUtility.SetDirty(NGUIHelperSetting.instance);
     }
 
     void OnWizardCreate()

@@ -29,6 +29,7 @@ public class ReplaceFont : ScriptableWizard
         NGUIHelperSetting.instance.replace_fontFrom = fontFrom;
         NGUIHelperSetting.instance.replace_fontTo = fontTo;
         NGUIHelperSetting.instance.replace_fontscaleCoeff = scaleCoeff;
+        EditorUtility.SetDirty(NGUIHelperSetting.instance);
     }
     void OnWizardCreate()
     {
