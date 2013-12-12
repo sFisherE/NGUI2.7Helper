@@ -42,6 +42,7 @@ public class UIArtTextInspector : Editor
                     Init();
                     mArtText.font = mFontOptions[0];
                     EditorUtility.SetDirty(mArtText.gameObject);
+                    mArtText.Generate();
                 }
             });
         if (mArtText.atlas == null) return;

@@ -1,18 +1,18 @@
 ﻿using UnityEngine;
 using UnityEditor;
-
+using System.IO;
 /// <summary>
-///   原贴图需要备份吧
-///   
+///  两种情况：
+///  1.9宫格拉伸部分没有渐变
+///  2.9宫格拉伸部分有渐变，这种9宫格主要是为了减少图片体积，这种图的图集不能压缩
+/// 现在只处理了情况1
+/// 
 /// roadmap:
-/// 自动找到切分线，并且能够将border信息保存下来，并保存在对应的atlas中
-/// 
 /// 如果原来的sprite没有border信息，需要将所有用到这张sprite的界面元素的类型改成sliced
-/// 
 /// </summary>
 public class UIAtlas9PatchSlicer : EditorWindow
 {
-    [MenuItem("NGUIHelper/Atlas 9 Patch Slicer")]
+    [MenuItem("NGUIHelper/9 Patch/Atlas 9 Patch Slicer")]
     static public void openAtlas9PatchSlicer()
     {
         EditorWindow.GetWindow<UIAtlas9PatchSlicer>(false, "Atlas 9 Patch Slicer", true);
@@ -23,8 +23,9 @@ public class UIAtlas9PatchSlicer : EditorWindow
 
     NGUIEditorTools.IntVector mBorderA;
     NGUIEditorTools.IntVector mBorderB;
-    string mPath;
+    //string mPath;
     string mOutputPath;
+    string mRawPath;
 
     UIAtlas mAtlas;
     string mSpriteName;
@@ -35,17 +36,29 @@ public class UIAtlas9PatchSlicer : EditorWindow
         ComponentSelector.Draw<UIAtlas>(mAtlas, obj =>
             {
                 mAtlas = obj as UIAtlas;
+
             });
 
         if (mAtlas == null) return;
         NGUIEditorTools.AdvancedSpriteField(mAtlas, mSpriteName,
             spriteName =>
             {
-                string path = NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/" + spriteName + ".png";
-                mOutputPath = NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/" + spriteName + ".png";
-                mTex = AssetDatabase.LoadAssetAtPath(path, typeof(Texture2D)) as Texture2D;
+                if (mAtlas != null)
+                {
+                    NGUIEditorTools.ImportTexture(mAtlas.texture, true, false);
+                }
 
+                //string path = NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/" + spriteName + ".png";
+                mRawPath = NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name;
+                mOutputPath = NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/" + spriteName + ".png";
+                //加载的是本地备份的图片
+                mTex = AssetDatabase.LoadAssetAtPath(mOutputPath, typeof(Texture2D)) as Texture2D;
                 mSpriteEntry = AtlasUtility.ExtractSprite(mAtlas, spriteName);
+
+                mBorderA.x = (int)mSpriteEntry.border.x;
+                mBorderA.y =(int)mSpriteEntry.border.z;
+                mBorderB.x = (int)mSpriteEntry.border.y;
+                mBorderB.y =(int)mSpriteEntry.border.w;
 
                 if (mTex != null)
                 {
@@ -68,8 +81,8 @@ public class UIAtlas9PatchSlicer : EditorWindow
         {
             return;
         }
-        mPath = AssetDatabase.GetAssetPath(mTex);
-        mPath = mPath.Substring(0, mPath.Length - mTex.name.Length - ".png".Length - "/".Length);
+        //mPath = AssetDatabase.GetAssetPath(mTex);
+        //mPath = mPath.Substring(0, mPath.Length - mTex.name.Length - ".png".Length - "/".Length);
 
         EditorGUILayout.Separator();
         GUI.backgroundColor = NGUIHelperSetting.Blue;
@@ -154,11 +167,34 @@ public class UIAtlas9PatchSlicer : EditorWindow
         GUI.backgroundColor = Color.green;
         if (GUILayout.Button("Slice", GUILayout.Width(76f)))
         {
-            //Debug.Log("split...");
             Texture2D output = Slice();
-            SaveTexture(output, mTex.name);
-            //mSpriteEntry.maxX
+            if (output != null)
+            {
+                SaveTexture(output, mTex.name);
+                mTex = AssetDatabase.LoadAssetAtPath(mOutputPath, typeof(Texture2D)) as Texture2D;
+                AtlasUtility.AddOrUpdate(mAtlas, mTex);
 
+                //更新border
+                mAtlas.coordinates = UIAtlas.Coordinates.Pixels;
+                foreach (var s in mAtlas.spriteList)
+                {
+                    //s.inner
+                    if (s.name == mTex.name)
+                    {
+                        Rect outer = s.outer;
+                        Rect inner = new Rect();
+                        inner.xMin = mBorderA.x + outer.xMin;
+                        inner.yMin = mBorderB.y + outer.yMin;
+                        inner.xMax = outer.xMax - mBorderA.y;
+                        inner.yMax = outer.yMax - mBorderB.x;
+                        s.inner = inner;
+                        Debug.Log(s.inner.ToString() + " " + s.outer.ToString());
+
+                        //所有使用过该张sprite的界面元素都需要设置为sliced模式
+                    }
+                }
+            }
+            AssetDatabase.Refresh();
             Resources.UnloadUnusedAssets();
         }
         GUILayout.EndHorizontal();
@@ -250,11 +286,22 @@ public class UIAtlas9PatchSlicer : EditorWindow
     }
     void SaveTexture(Texture2D tex, string name)
     {
-        AssetDatabase.DeleteAsset(mPath + "/result");
-        AssetDatabase.CreateFolder(mPath, "result");
+        //备份原图
+        Object o = AssetDatabase.LoadAssetAtPath(NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/bak", typeof(Object));
+        if (o == null)
+            AssetDatabase.CreateFolder(mRawPath, "bak");
+        //如果原来已经有一张同名的图了，作为备份的图应该还是原来的那张图，不需要覆盖
+        Object t = AssetDatabase.LoadAssetAtPath(NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/bak/" + name + ".png", typeof(Texture2D));
+        if (t == null)
+            AssetDatabase.MoveAsset(mOutputPath, mRawPath + "/bak/" + name + ".png");
+        else
+            AssetDatabase.DeleteAsset(mOutputPath);
+
+        //Debug.Log("new path:" + mRawPath + "/bak/" + name + ".png");
         byte[] bytes = tex.EncodeToPNG();
-        System.IO.File.WriteAllBytes(mPath + "/result/" + name + ".png", bytes);
-        AssetDatabase.Refresh();
+        System.IO.File.WriteAllBytes(mOutputPath, bytes);
+        AssetDatabase.ImportAsset(mOutputPath);
+        AtlasUtility.MakeTextureTrue(mOutputPath);
     }
 
     Vector2 mPos;
@@ -387,16 +434,16 @@ public class UIAtlas9PatchSlicer : EditorWindow
                 top++;
             }
         }
-            if (top != bottom)
-            {
-                mBorderB.x = bottom;
-                mBorderB.y = mTex.height - top;
-            }
-            else
-            {
-                mBorderB.x = 0;
-                mBorderB.y = 0;
-            }
+        if (top != bottom)
+        {
+            mBorderB.x = bottom;
+            mBorderB.y = mTex.height - top;
+        }
+        else
+        {
+            mBorderB.x = 0;
+            mBorderB.y = 0;
+        }
         //}
 
     }

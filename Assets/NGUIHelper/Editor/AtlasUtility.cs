@@ -22,6 +22,41 @@ internal class AtlasUtility
 
         public Vector4 border;
     }
+
+    public class BorderEntry
+    {
+        public string name;
+        public Vector4 border;
+    }
+
+    /// <summary>
+    ///   更新border信息,确保atlas的coordinates = UIAtlas.Coordinates.Pixels;
+    /// </summary>
+    public static void UpdateBorder(UIAtlas.Sprite sprite, Vector4 border)
+    {
+        Rect outer = sprite.outer;
+        Rect inner = new Rect();
+        inner.xMin = border.x + outer.xMin;
+        inner.yMin = border.y + outer.yMin;
+        inner.xMax = outer.xMax - border.z;
+        inner.yMax = outer.yMax - border.w;
+        sprite.inner = inner;
+    }
+    /// <summary>
+    ///   从sprite中获取border信息
+    /// </summary>
+    public static Vector4 GetBorder(UIAtlas.Sprite sprite)
+    {
+        Rect outer = sprite.outer;
+        Rect inner = sprite.inner;
+        Vector4 border = new Vector4(inner.xMin - outer.xMin,
+            inner.yMin - outer.yMin,
+            outer.xMax - inner.xMax,
+            outer.yMax - inner.yMax);
+        return border;
+    }
+
+
     /// <summary>
     /// Extract sprites from the atlas, adding them to the list.
     /// </summary>
@@ -660,8 +695,7 @@ internal class AtlasUtility
 
   public static SpriteEntry ExtractSprite(UIAtlas atlas, string spriteName)
   {
-      // Make the atlas texture readable
-      Texture2D atlasTex = NGUIEditorTools.ImportTexture(atlas.texture, true, false);
+      Texture2D atlasTex = atlas.texture as Texture2D;// NGUIEditorTools.ImportTexture(atlas.texture, true, false);
       SpriteEntry ret = null;
       if (atlasTex != null)
       {
@@ -712,16 +746,12 @@ internal class AtlasUtility
                   sprite.tex.SetPixels32(newPixels);
                   sprite.tex.Apply();
 
-                  //sprite.border=atlas.
-                  //sprite.innerRect = asp.inner;
-                  //Debug.Log(asp.inner.ToString()+" "+asp.outer.ToString());
                   Rect outer = asp.outer;
                   Rect inner = asp.inner;
-                  //Debug.Log(outer.ToString() + " " + inner.ToString());
-                  //outer = NGUIMath.ConvertToPixels(outer, atlasTex.width, atlasTex.height, true);
-                  //inner = NGUIMath.ConvertToPixels(inner, atlasTex.width, atlasTex.height, true);
-                  sprite.border = new Vector4(inner.xMin - outer.xMin, inner.yMin - outer.yMin, outer.xMax - inner.xMax, outer.yMax - inner.yMax);
-                  //Debug.Log(sprite.border.ToString());
+                  sprite.border = new Vector4(inner.xMin - outer.xMin, 
+                      inner.yMin - outer.yMin, 
+                      outer.xMax - inner.xMax, 
+                      outer.yMax - inner.yMax);
                   
                   // Min/max coordinates are in pixels
                   sprite.minX = Mathf.RoundToInt(asp.paddingLeft * newWidth);
@@ -735,7 +765,7 @@ internal class AtlasUtility
       }
 
       // The atlas no longer needs to be readable
-      NGUIEditorTools.ImportTexture(atlas.texture, false, false);
+      //NGUIEditorTools.ImportTexture(atlas.texture, false, false);
       return ret;
   }
 

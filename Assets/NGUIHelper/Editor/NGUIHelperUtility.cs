@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using System.IO;
+using System.Reflection;
 using Object = UnityEngine.Object;
 
 public class NGUIHelperUtility
@@ -174,4 +175,47 @@ public class NGUIHelperUtility
         int assetID = EditorPrefs.GetInt(name, -1);
         return (assetID != -1) ? EditorUtility.InstanceIDToObject(assetID) : null;
     }
+
+
+#region GetType
+  public static  List<Type> GetTypeList()
+    {
+        List<Type> types = new List<Type>();
+        AppDomain domain = AppDomain.CurrentDomain;
+        Type ComponentType = typeof(Component);
+        //mTypes.Clear();
+        foreach (Assembly asm in domain.GetAssemblies())
+        {
+            Assembly currentAssembly = null;
+            //	add UnityEngine.dll component types
+            if (asm.FullName == "UnityEngine")
+                currentAssembly = asm;
+            //	check only for temporary assemblies (i.e. d6a5e78fb39c28ds27a1ec4f9g1 )
+            if (ContainsNumbers(asm.FullName))
+                currentAssembly = asm;
+            if (currentAssembly != null)
+            {
+                foreach (Type t in currentAssembly.GetExportedTypes())
+                {
+                    if (ComponentType.IsAssignableFrom(t))
+                    {
+                        types.Add(t);
+                    }
+                }
+            }
+        }
+        return types;
+    }
+  static  bool ContainsNumbers(String text)
+    {
+        int i = 0;
+        foreach (char c in text)
+        {
+            if (int.TryParse(c.ToString(), out i))
+                return true;
+        }
+        return false;
+    }
+#endregion
+
 }

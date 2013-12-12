@@ -180,63 +180,91 @@ class UIAtlasExchanger : EditorWindow
 
         if (GUILayout.Button("Process"))
         {
-            //Debug.Log("remove from A:");
-            //foreach (var ra in mRemoveFromA)
-            //{
-            //    Debug.Log(ra);
-            //}
-            //Debug.Log("remove from B:");
-            //foreach (var rb in mRemoveFromB)
-            //{
-            //    Debug.Log(rb);
-            //}
-            //List<Texture2D> texRemoveFormA = new List<Texture2D>();
             if (mAtlasA != null && mAtlasB != null && (mRemoveFromA.Count > 0 || mRemoveFromB.Count > 0))
             {
-                //foreach (var name in mRemoveFromA)
-                //{
-                //    Texture2D tex = AssetDatabase.LoadAssetAtPath(mPathB + "/" + name, typeof(Texture2D)) as Texture2D;
-                //    if (tex != null)
-                //    {
-                //        texRemoveFormA.Add(tex);
-                //        //foreach (var sp in mAtlasA.spriteList)
-                //        //{
-                //        //    if (sp.name == tex.name)
-                //        //    {
-                //        //        //s.inner = NGUIMath.ConvertToPixels(sp.inner, tex.width, tex.height, true);
-                //        //    }
-                //        //}
-                //    }
-                //}
-                List<AtlasUtility.SpriteEntry> spritesFormA = new List<AtlasUtility.SpriteEntry>();
-                AtlasUtility.ExtractSprites(mAtlasA, spritesFormA);
-                List<AtlasUtility.SpriteEntry> spritesFormB = new List<AtlasUtility.SpriteEntry>();
-                AtlasUtility.ExtractSprites(mAtlasB, spritesFormB);
+                List<AtlasUtility.SpriteEntry> spritesFromA = new List<AtlasUtility.SpriteEntry>();
+                AtlasUtility.ExtractSprites(mAtlasA, spritesFromA);
+                //保存border信息
+                mAtlasA.coordinates = UIAtlas.Coordinates.Pixels;
+                //List<UIAtlas.Sprite> spriteListA = new List<UIAtlas.Sprite>();
+                List<AtlasUtility.BorderEntry> borderListA = new List<AtlasUtility.BorderEntry>();
+                foreach (var s in mAtlasA.spriteList)
+                {
+                    if (spritesFromA.Find(p=>p.tex.name==s.name)!=null)
+                    {
+                        var ns = new AtlasUtility.BorderEntry();
+                        ns.name = s.name;
+                        //Rect outer = s.outer;
+                        //Rect inner = s.inner;
+                        //ns.border = new Vector4(inner.xMin - outer.xMin, 
+                        //    inner.yMin - outer.yMin, 
+                        //    outer.xMax - inner.xMax, 
+                        //    outer.yMax - inner.yMax);
+                        ns.border = AtlasUtility.GetBorder(s);
+                        borderListA.Add(ns);
+                    }
+                }
+                List<AtlasUtility.SpriteEntry> spritesFromB = new List<AtlasUtility.SpriteEntry>();
+                AtlasUtility.ExtractSprites(mAtlasB, spritesFromB);
+                List<AtlasUtility.BorderEntry> borderListB = new List<AtlasUtility.BorderEntry>();
+                foreach (var s in mAtlasB.spriteList)
+                {
+                    if (spritesFromB.Find(p => p.tex.name == s.name) != null)
+                    {
+                        var ns = new AtlasUtility.BorderEntry();
+                        ns.name = s.name;
+                        //Rect outer = s.outer;
+                        //Rect inner = s.inner;
+                        //ns.border = new Vector4(inner.xMin - outer.xMin, 
+                        //    inner.yMin - outer.yMin, 
+                        //    outer.xMax - inner.xMax, 
+                        //    outer.yMax - inner.yMax);
+                        ns.border = AtlasUtility.GetBorder(s);
+                        borderListB.Add(ns);
+                    }
+                }
 
                 List<AtlasUtility.SpriteEntry> tempSprites = new List<AtlasUtility.SpriteEntry>();
-                tempSprites.AddRange(spritesFormA);
-                tempSprites.AddRange(spritesFormB);
+                tempSprites.AddRange(spritesFromA);
+                tempSprites.AddRange(spritesFromB);
                 foreach (var name in mRemoveFromA)
                 {
-                    AtlasUtility.SpriteEntry data = spritesFormA.Find(p => p.tex.name == name);
+                    AtlasUtility.SpriteEntry data = spritesFromA.Find(p => p.tex.name == name);
                     if (data != null)
                     {
-                        spritesFormB.Add(data);
-                        spritesFormA.Remove(data);
+                        spritesFromB.Add(data);
+                        spritesFromA.Remove(data);
                     }
                 }
                 foreach (var name in mRemoveFromB)
                 {
-                    AtlasUtility.SpriteEntry data = spritesFormB.Find(p => p.tex.name == name);
+                    AtlasUtility.SpriteEntry data = spritesFromB.Find(p => p.tex.name == name);
                     if (data != null)
                     {
-                        spritesFormA.Add(data);
-                        spritesFormB.Remove(data);
+                        spritesFromA.Add(data);
+                        spritesFromB.Remove(data);
                     }
                 }
 
-                AtlasUtility.UpdateAtlas(mAtlasA, spritesFormA);
-                AtlasUtility.UpdateAtlas(mAtlasB, spritesFormB);
+                AtlasUtility.UpdateAtlas(mAtlasA, spritesFromA);
+                AtlasUtility.UpdateAtlas(mAtlasB, spritesFromB);
+                //更新border信息
+                foreach (var b in borderListA)
+                {
+                    UIAtlas.Sprite sp = mAtlasB.spriteList.Find(p => p.name == b.name);
+                    if (sp!=null)
+                    {
+                        AtlasUtility.UpdateBorder(sp, b.border);
+                    }
+                }
+                foreach (var b in borderListB)
+                {
+                    UIAtlas.Sprite sp = mAtlasA.spriteList.Find(p => p.name == b.name);
+                    if (sp != null)
+                    {
+                        AtlasUtility.UpdateBorder(sp, b.border);
+                    }
+                }
 
                 //将相应的使用的sprite的spritename换掉
                 List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(NGUIHelperSetting.GetPrefabPath());

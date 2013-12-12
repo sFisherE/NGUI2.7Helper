@@ -20,45 +20,9 @@ public class DestroyComponent : ScriptableWizard
 #region TypeInit
     public DestroyComponent()
     {
-        FillTypeList();
+        mTypes = NGUIHelperUtility.GetTypeList();
     }
     private List<Type> mTypes = new List<Type>();
-    void FillTypeList()
-    {
-        AppDomain domain = AppDomain.CurrentDomain;
-        Type ComponentType = typeof(Component);
-        mTypes.Clear();
-        foreach (Assembly asm in domain.GetAssemblies())
-        {
-            Assembly currentAssembly = null;
-            //	add UnityEngine.dll component types
-            if (asm.FullName == "UnityEngine")
-                currentAssembly = asm;
-            //	check only for temporary assemblies (i.e. d6a5e78fb39c28ds27a1ec4f9g1 )
-            if (ContainsNumbers(asm.FullName))
-                currentAssembly = asm;
-            if (currentAssembly != null)
-            {
-                foreach (Type t in currentAssembly.GetExportedTypes())
-                {
-                    if (ComponentType.IsAssignableFrom(t))
-                    {
-                        mTypes.Add(t);
-                    }
-                }
-            }
-        }
-    }
-    bool ContainsNumbers(String text)
-    {
-        int i = 0;
-        foreach (char c in text)
-        {
-            if (int.TryParse(c.ToString(), out i))
-                return true;
-        }
-        return false;
-    }
 #endregion
 
     public string componentName;
