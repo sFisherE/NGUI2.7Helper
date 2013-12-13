@@ -3,6 +3,12 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
 
+/// <summary>
+///   move a sprite from atlasA to atlasB，meanwhile change all the UISprite components in prefab.
+///   
+/// roadmap:
+/// @1.
+/// </summary>
 class UIAtlasExchanger : EditorWindow
 {
     [MenuItem("NGUIHelper/Atlas Exchanger")]

@@ -70,6 +70,7 @@ public class ReplaceSprite : ScriptableWizard
                 if (go != null)
                 {
                     UISprite[] sprites = go.GetComponentsInChildren<UISprite>(true);
+                    bool change = false;
                     foreach (var s in sprites)
                     {
                         if (s.atlas == atlasFrom)
@@ -78,11 +79,13 @@ public class ReplaceSprite : ScriptableWizard
                             {
                                 s.atlas = atlasTo;
                                 s.spriteName = spriteTo;
+                                change = true;
                                 s.MakePixelPerfect();
-
                             }
                         }
                     }
+                    if (change)
+                        EditorUtility.SetDirty(go);
                 }
             }
         }
