@@ -1,15 +1,20 @@
 NGUI2.7Helper
 =============
+something useful in development with NGUI2.x
+include:
+1.batch replace font,sprite,atlas with another one
+2.batch delete component 
+3.move a sprite in atlas A to atlas B,automatic change all the related prefab referencing to right atlas,of course you should set the working folder before.
+4.9 patch slice tool,you can spilit sprite in atlas or just a texture
+5.art font solution,easy to manage
+6.widgets tool,easy to adjust the atlas depth,it will be banished in NGUI3.x
 
-NGUI2.7开发过程中，一些实用的工具或解决方案。
+I will upgrade these tools to NGUI3.x in future
 
-1.批量替换工具:字体、sprite、atlas
-2.批量删除工具：脚本
-3.将atlasA中的图移动到altasB中去，所有关联的prefab都自动修改
-4.9宫格切图工具，可以对图集中的图片直接进行修改
-5.艺术字解决方案，和多语言结合起来
-6.深度管理工具
-7.实用的编辑命令
+todo：
+1.widgetsTool need to optimize with it's interface and add more function to multiple widgets operation 
+2.scrollingOutline need to parameterize,but the useage is too trivial
+3.9 patch tool need automatic change the related UISprite component mode to sliced
+4.new art text componet which use just one UIWidget,keep the old one which can animate easily
+5.I have no idea...
 
-部分工具正在开发过程中。。。
-未来会开发NGUI3.x的相关工具
