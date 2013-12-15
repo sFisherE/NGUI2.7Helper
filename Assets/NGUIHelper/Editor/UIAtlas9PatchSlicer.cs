@@ -12,11 +12,11 @@ using System.IO;
 /// </summary>
 public class UIAtlas9PatchSlicer : EditorWindow
 {
-    [MenuItem("NGUIHelper/9 Patch/Atlas 9 Patch Slicer")]
-    static public void openAtlas9PatchSlicer()
-    {
-        EditorWindow.GetWindow<UIAtlas9PatchSlicer>(false, "Atlas 9 Patch Slicer", true);
-    }
+    //[MenuItem("NGUIHelper/9 Patch/Atlas 9 Patch Slicer")]
+    //static public void openAtlas9PatchSlicer()
+    //{
+    //    EditorWindow.GetWindow<UIAtlas9PatchSlicer>(false, "Atlas 9 Patch Slicer", true);
+    //}
 
     Texture2D mTex;
     Texture2D mPreviewTex;

@@ -12,11 +12,11 @@ using System;
 using Object = UnityEngine.Object;
 public class UIFontSpider : EditorWindow
 {
-    [MenuItem("NGUIHelper/Find/Font Spider")]
-    static void Init()
-    {
-        UIFontSpider window = (UIFontSpider)EditorWindow.GetWindow(typeof(UIFontSpider), false, "Font Spider");
-    }
+    //[MenuItem("NGUIHelper/Find/Font Spider")]
+    //static void Init()
+    //{
+    //    UIFontSpider window = (UIFontSpider)EditorWindow.GetWindow(typeof(UIFontSpider), false, "Font Spider");
+    //}
 
     #region  WorkingPath
     string mPath;

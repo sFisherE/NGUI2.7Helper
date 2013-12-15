@@ -11,11 +11,11 @@ using UnityEngine;
 /// </summary>
 public class UIAtlasSpider : EditorWindow
 {
-    [MenuItem("NGUIHelper/Find/Atlas Spider")]
-    static void Init()
-    {
-        UIAtlasSpider window = (UIAtlasSpider)EditorWindow.GetWindow(typeof(UIAtlasSpider), false, "Atlas Spider");
-    }
+    //[MenuItem("NGUIHelper/Find/Atlas Spider")]
+    //static void Init()
+    //{
+    //    UIAtlasSpider window = (UIAtlasSpider)EditorWindow.GetWindow(typeof(UIAtlasSpider), false, "Atlas Spider");
+    //}
 
     UIAtlas mSelectAtlas;
 

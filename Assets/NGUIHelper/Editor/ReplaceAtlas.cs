@@ -8,11 +8,11 @@ using UnityEditor;
 /// </summary>
 public class ReplaceAtlas : ScriptableWizard
 {
-    [MenuItem("NGUIHelper/Replace/Replace Atlas")]
-    static void CreateWizard()
-    {
-        ScriptableWizard.DisplayWizard<ReplaceAtlas>("Replace Atlas", "Close", "Replace");
-    }
+    //[MenuItem("NGUIHelper/Replace/Replace Atlas")]
+    //static void CreateWizard()
+    //{
+    //    ScriptableWizard.DisplayWizard<ReplaceAtlas>("Replace Atlas", "Close", "Replace");
+    //}
 
     public ReplaceAtlas()
     {

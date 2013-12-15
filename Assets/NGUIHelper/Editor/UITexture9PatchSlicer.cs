@@ -9,11 +9,11 @@ using UnityEditor;
 /// </summary>
 public class UITexture9PatchSlicer : EditorWindow
 {
-    [MenuItem("NGUIHelper/9 Patch/Texture 9 Patch Slicer")]
-    static public void openTexture9PatchSlicer()
-    {
-        EditorWindow.GetWindow<UITexture9PatchSlicer>(false, "Texture 9 Patch Slicer", true);
-    }
+    //[MenuItem("NGUIHelper/9 Patch/Texture 9 Patch Slicer")]
+    //static public void openTexture9PatchSlicer()
+    //{
+    //    EditorWindow.GetWindow<UITexture9PatchSlicer>(false, "Texture 9 Patch Slicer", true);
+    //}
 
     Texture2D mTex;
     Texture2D mPreviewTex;

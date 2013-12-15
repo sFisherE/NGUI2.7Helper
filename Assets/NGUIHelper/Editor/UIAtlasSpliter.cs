@@ -5,11 +5,11 @@ using UnityEditor;
 
 public class UIAtlasSpliter : EditorWindow
 {
-    [MenuItem("NGUIHelper/AtlasSpliter")]
-    static public void OpenAtlasSplitTool()
-    {
-        EditorWindow.GetWindow<UIAtlasSpliter>(false, "AtlasSpliter", true);
-    }
+    //[MenuItem("NGUIHelper/AtlasSpliter")]
+    //static public void OpenAtlasSplitTool()
+    //{
+    //    EditorWindow.GetWindow<UIAtlasSpliter>(false, "AtlasSpliter", true);
+    //}
 
   public  UIAtlas atlas;
     Object source;

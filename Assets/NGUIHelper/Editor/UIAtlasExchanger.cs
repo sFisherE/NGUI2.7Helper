@@ -11,11 +11,11 @@ using System.IO;
 /// </summary>
 class UIAtlasExchanger : EditorWindow
 {
-    [MenuItem("NGUIHelper/Atlas Exchanger")]
-    static public void openAtlasExchanger()
-    {
-        EditorWindow.GetWindow<UIAtlasExchanger>(false, "Atlas Exchanger", true);
-    }
+    //[MenuItem("NGUIHelper/Atlas Exchanger")]
+    //static public void openAtlasExchanger()
+    //{
+    //    EditorWindow.GetWindow<UIAtlasExchanger>(false, "Atlas Exchanger", true);
+    //}
 
     UIAtlas mAtlasA;
     UIAtlas mAtlasB;

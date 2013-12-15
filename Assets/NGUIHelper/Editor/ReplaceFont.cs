@@ -8,11 +8,11 @@ using UnityEditor;
 /// </summary>
 public class ReplaceFont : ScriptableWizard
 {
-    [MenuItem("NGUIHelper/Replace/Replace Font")]
-    static void CreateWizard()
-    {
-        ScriptableWizard.DisplayWizard<ReplaceFont>("Replace Font", "Close", "Replace");
-    }
+    //[MenuItem("NGUIHelper/Replace/Replace Font")]
+    //static void CreateWizard()
+    //{
+    //    ScriptableWizard.DisplayWizard<ReplaceFont>("Replace Font", "Close", "Replace");
+    //}
 
     public ReplaceFont()
     {
@@ -80,6 +80,7 @@ public class ReplaceFont : ScriptableWizard
     {
         if (go != null)
         {
+            bool change = false;
             UILabel[] labels = go.GetComponentsInChildren<UILabel>(true);
             foreach (var v in labels)
             {
@@ -90,9 +91,12 @@ public class ReplaceFont : ScriptableWizard
                         v.font = fontTo;
                         Vector3 from = v.transform.localScale;
                         v.transform.localScale = new Vector3(from.x * scaleCoeff.x, from.y * scaleCoeff.y, 1);
+                        change = true;
                     }
                 }
             }
+            if (change)
+                EditorUtility.SetDirty(go);
         }
     }
 }

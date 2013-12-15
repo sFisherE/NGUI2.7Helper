@@ -8,23 +8,6 @@ using Object = UnityEngine.Object;
 
 public class NGUIHelperUtility
 {
-    //便捷的测试函数
-    [MenuItem("NGUIHelper/Test #&t")]
-    public static void Test()
-    {
-        //string path = AssetDatabase.GetAssetPath(Selection.activeInstanceID);
-        //IsScript(path);
-    }
-
-
-    [MenuItem("NGUIHelper/Output The Selection Path #&g")]
-    public static void OutputTheSelectionPath()
-    {
-        if (Selection.activeGameObject != null)
-        {
-            Debug.Log(GetGameObjectPath(Selection.activeGameObject));
-        }
-    }
 
     public static string GetGameObjectPath(GameObject obj)
     {
@@ -146,29 +129,7 @@ public class NGUIHelperUtility
 
 
 
-    //[MenuItem("UIEditTool/Destory All The Missing MonoBehaviour")]
-    public static void DestoryAllTheMissMonoBehaviour()
-    {
-        string path = AssetDatabase.GetAssetPath(Selection.activeInstanceID);
 
-        if (!IsDirectory(path))
-        {
-            EditorUtility.DisplayDialog("warning", "you must select a directory!", "ok");
-        }
-        else
-        {
-            Debug.Log(path + " " + IsDirectory(path));
-
-            List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(path);
-
-            //Object[] os = AssetDatabase.LoadAllAssetRepresentationsAtPath(path);
-            //Debug.Log(os.Length);
-            //foreach (var g in os)
-            //{
-            //    Debug.Log(g.name);
-            //}
-        }
-    }
 
     public static Object GetObject(string name)
     {
