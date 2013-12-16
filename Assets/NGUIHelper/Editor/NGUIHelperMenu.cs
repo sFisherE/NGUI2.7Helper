@@ -2,8 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System.IO;
 
-
+/// <summary>
+///   
+/// todo:
+/// 1.how to apply prefab in runtime,because i always adjust value in runtime to avoid write to much editor code.
+/// 2.how to record data in runtime,
+/// </summary>
 static public class NGUIHelperMenu
 {
     //便捷的测试函数
@@ -97,5 +103,23 @@ static public class NGUIHelperMenu
     static public void openTexture9PatchSlicer()
     {
         EditorWindow.GetWindow<UITexture9PatchSlicer>(false, "Texture 9 Patch Slicer", true);
+    }
+
+    [MenuItem("NGUIHelper/Find/Create SpriteUsage")]
+    public static SpriteUsage CreateSpriteUsage()
+    {
+        var path = System.IO.Path.Combine("Assets/NGUIHelper/Resources", "SpriteUsage.asset");
+        var so = AssetDatabase.LoadMainAssetAtPath(path) as SpriteUsage;
+        if (so)
+            return so;
+        so = ScriptableObject.CreateInstance<SpriteUsage>();
+        DirectoryInfo di = new DirectoryInfo(Application.dataPath + "/NGUIHelper/Resources");
+        if (!di.Exists)
+        {
+            di.Create();
+        }
+        AssetDatabase.CreateAsset(so, path);
+        AssetDatabase.SaveAssets();
+        return so;
     }
 }

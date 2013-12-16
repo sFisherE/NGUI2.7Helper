@@ -24,30 +24,7 @@ public class NGUIHelperSetting : ScriptableObject
     }
 
 
-    public Dictionary<string, List<string>> spriteUsage;
-    /// <summary>
-    ///   record all the usage of every sprite,so we can know which one is not used with AtlasSpider.
-    ///   you should rewrite the setter of "spriteName" in advance 
-    /// </summary>
-    public void ChangeSpriteName(UISprite sprite,string spriteName)
-    {
-        if (sprite==null)
-            return;
 
-        sprite.spriteName = spriteName;
-
-        //register the usage of the spriteName in the atlas
-        if (spriteUsage==null)
-            spriteUsage = new Dictionary<string, List<string>>();
-
-        string key=sprite.atlas.name;
-        
-        if (spriteUsage[key]!=null)
-            spriteUsage.Add(key, new List<string>());
-        
-        spriteUsage[key].Add(spriteName);
-        EditorUtility.SetDirty(NGUIHelperSetting.instance);
-    }
 
 
     [MenuItem("NGUIHelper/Create NGUIHelperSetting")]
