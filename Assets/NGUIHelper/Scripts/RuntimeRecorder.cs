@@ -1,6 +1,8 @@
-﻿using System;
+﻿#define RUNTIME_RECORD
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Diagnostics;
 
 /// <summary>
 ///   this class is design to record all the data need at runtime
@@ -33,6 +35,7 @@ public class RuntimeRecorder : MonoBehaviour
     }
 
     public SpriteUsage spriteUsage;
+    [Conditional("RUNTIME_RECORD")]
     public void RecordSpriteUsage(UISprite sprite, string spriteName)
     {
         if (spriteUsage != null)

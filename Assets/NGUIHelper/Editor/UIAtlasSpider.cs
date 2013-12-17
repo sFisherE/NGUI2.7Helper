@@ -11,14 +11,7 @@ using UnityEngine;
 /// </summary>
 public class UIAtlasSpider : EditorWindow
 {
-    //[MenuItem("NGUIHelper/Find/Atlas Spider")]
-    //static void Init()
-    //{
-    //    UIAtlasSpider window = (UIAtlasSpider)EditorWindow.GetWindow(typeof(UIAtlasSpider), false, "Atlas Spider");
-    //}
-
     UIAtlas mSelectAtlas;
-
     void DrawSelectAtlas()
     {
         ComponentSelector.Draw<UIAtlas>("Select", mSelectAtlas, obj =>
@@ -36,6 +29,7 @@ public class UIAtlasSpider : EditorWindow
                         }
                     }
                 }
+                mRuntimeUsage = null;
                 Repaint();
             });
         GUILayout.BeginHorizontal();
@@ -57,25 +51,25 @@ public class UIAtlasSpider : EditorWindow
     }
 
     string mPath;
-     Object mFolder;
-     void DrawSelectPath()
-     {
-         mFolder = EditorGUILayout.ObjectField("Select Path:", mFolder, typeof(Object), false) as Object;
-         if (mFolder != null)
-         {
-             string path = AssetDatabase.GetAssetPath(mFolder);
-             if (NGUIHelperUtility.IsDirectory(path))
-             {
-                 mPath = path;
-                 GUILayout.Label("you select a path:    " + mPath);
-             }
-             else
-             {
-                 mPath = string.Empty;
-                 EditorGUILayout.HelpBox("please select a folder", MessageType.Warning);
-             }
-         }
-     }
+    Object mFolder;
+    void DrawSelectPath()
+    {
+        mFolder = EditorGUILayout.ObjectField("Select Path:", mFolder, typeof(Object), false) as Object;
+        if (mFolder != null)
+        {
+            string path = AssetDatabase.GetAssetPath(mFolder);
+            if (NGUIHelperUtility.IsDirectory(path))
+            {
+                mPath = path;
+                GUILayout.Label("you select a path:    " + mPath);
+            }
+            else
+            {
+                mPath = string.Empty;
+                EditorGUILayout.HelpBox("please select a folder", MessageType.Warning);
+            }
+        }
+    }
 
 
     List<string> mPrefabNames = new List<string>();
@@ -98,6 +92,25 @@ public class UIAtlasSpider : EditorWindow
     }
     Dictionary<string, SpriteEntry> spriteUseStates = new Dictionary<string, SpriteEntry>();
     bool mShowRelatedSprites = false;
+    List<string> mRuntimeUsage;
+    List<string> runtimeUsage
+    {
+        get
+        {
+            if (mRuntimeUsage == null)
+            {
+                SpriteUsage spriteUsage = Resources.Load("SpriteUsage") as SpriteUsage;
+                if (mSelectAtlas != null)
+                {
+                    SpriteUsage.UsageEntry ue = spriteUsage.data.Find(p => p.atlasName == mSelectAtlas.name);
+                    if (ue != null)
+                        mRuntimeUsage = ue.spriteNames;
+                }
+            }
+            return mRuntimeUsage;
+        }
+    }
+
     void DrawWidgets()
     {
         if (mSelectAtlas != null)
@@ -112,7 +125,17 @@ public class UIAtlasSpider : EditorWindow
                         {
                             GUILayout.BeginHorizontal();
                             {
+                                bool useInRuntime = false;
+                                if (runtimeUsage != null)
+                                {
+                                    if (runtimeUsage.Contains(s.name))
+                                        useInRuntime = true;
+                                    //Debug.Log("useInRuntime:" + useInRuntime);
+                                }
                                 GUI.backgroundColor = spriteUseStates[s.name].useState ? NGUIHelperSetting.Green : NGUIHelperSetting.Red;
+                                if (useInRuntime)
+                                    GUI.backgroundColor = NGUIHelperSetting.Green;
+
                                 GUILayout.Label(s.name, "HelpBox", GUILayout.Width(150), GUILayout.Height(18f));
                                 GUI.backgroundColor = Color.white;
                                 //GUILayout.Label(spriteUseStates[s.name].ToString(), GUILayout.Width(150));
@@ -120,7 +143,7 @@ public class UIAtlasSpider : EditorWindow
                                 {
                                     SpriteSelector.Show(mSelectAtlas, s.name, null);
                                 }
-                                GUILayout.Label(spriteUseStates[s.name].useTimes.ToString());
+                                GUILayout.Label(spriteUseStates[s.name].useTimes.ToString() + (useInRuntime ? " / runtime" : string.Empty));
                             }
                             GUILayout.EndHorizontal();
                             if (mShowRelatedSprites)
@@ -135,10 +158,7 @@ public class UIAtlasSpider : EditorWindow
                                             GUILayout.Space(30f);
                                             string path = NGUIHelperUtility.GetGameObjectPath(go);
                                             //path = path.Substring(("/" + RootName).Length);
-
-
-                                                GUI.contentColor = Color.black;
-                  
+                                            GUI.contentColor = Color.black;
 
                                             GUIStyle style = EditorStyles.whiteLabel;
                                             if (Selection.activeGameObject == go)
@@ -187,11 +207,10 @@ public class UIAtlasSpider : EditorWindow
             GameObject go = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject;
             if (go != null)
             {
-
                 UISprite[] sprites = go.GetComponentsInChildren<UISprite>(true);
                 foreach (var s in sprites)
                 {
-                    if (s.atlas==mSelectAtlas)
+                    if (s.atlas == mSelectAtlas)
                     {
                         string key = s.spriteName;
                         spriteUseStates[key].useState = true;
@@ -206,30 +225,21 @@ public class UIAtlasSpider : EditorWindow
             }
         }
     }
-
-
-    void SetSpriteUseState(List<UISprite> sprites)
-    {
-        foreach (UISprite s in sprites)
-        {
-            if (s.atlas == mSelectAtlas)
-            {
-                string key = s.spriteName;
-                spriteUseStates[key].useState = true;
-                List<GameObject> gos = spriteUseStates[key].relatedGos;
-                if (!gos.Contains(s.gameObject))
-                {
-                    spriteUseStates[key].useTimes++;//使用次数+1
-                    gos.Add(s.gameObject);
-                }
-            }
-        }
-    }
-    /// <summary>
-    ///   实时更新
-    /// </summary>
-    //void OnInspectorUpdate()
+    //void SetSpriteUseState(List<UISprite> sprites)
     //{
-    //    Repaint();
-    //} 
+    //    foreach (UISprite s in sprites)
+    //    {
+    //        if (s.atlas == mSelectAtlas)
+    //        {
+    //            string key = s.spriteName;
+    //            spriteUseStates[key].useState = true;
+    //            List<GameObject> gos = spriteUseStates[key].relatedGos;
+    //            if (!gos.Contains(s.gameObject))
+    //            {
+    //                spriteUseStates[key].useTimes++;//increase use times
+    //                gos.Add(s.gameObject);
+    //            }
+    //        }
+    //    }
+    //}
 }

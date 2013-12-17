@@ -12,6 +12,12 @@ class SpriteUsageInspector : Editor
         serializedObject.Update();
 
         mSpriteUsage = target as SpriteUsage;
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("SetDirty"))
+            EditorUtility.SetDirty(mSpriteUsage);
+        if (GUILayout.Button("Clear"))
+            mSpriteUsage.data.Clear();
+        GUILayout.EndHorizontal();
         foreach (var v in mSpriteUsage.data)
         {
             GUILayout.Label(v.atlasName);
@@ -23,9 +29,6 @@ class SpriteUsageInspector : Editor
                 GUILayout.EndHorizontal();
             }
         }
-        if (GUILayout.Button("SetDirty"))
-        {
-            EditorUtility.SetDirty(mSpriteUsage);
-        }
+
     }
 }
