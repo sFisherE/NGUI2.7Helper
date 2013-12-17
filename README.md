@@ -8,6 +8,7 @@ include:
 4.9 patch slice tool,you can spilit sprite in atlas or just a texture
 5.art font solution,easy to manage
 6.widgets tool,easy to adjust the atlas depth,it will be banished in NGUI3.x
+7.scan and record the sprite usage in atals, help you to eliminate the unused sprite
 
 I will upgrade these tools to NGUI3.x in future
 
