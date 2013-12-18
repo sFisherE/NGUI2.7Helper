@@ -17,5 +17,7 @@ todo：
 2.scrollingOutline need to parameterize,but the useage is too trivial
 3.9 patch tool need automatic change the related UISprite component mode to sliced
 4.new art text componet which use just one UIWidget,keep the old one which can animate easily
-5.I have no idea...
+5.touch trail effect
+6.effective page filp effect
+7....
 
