@@ -14,10 +14,7 @@ I will upgrade these tools to NGUI3.x in future
 
 todo：
 1.widgetsTool need to optimize with it's interface and add more function to multiple widgets operation 
-2.scrollingOutline need to parameterize,but the useage is too trivial
-3.9 patch tool need automatic change the related UISprite component mode to sliced
-4.new art text componet which use just one UIWidget,keep the old one which can animate easily
-5.touch trail effect
-6.effective page filp effect
-7....
+2.9 patch tool need automatic change the related UISprite component mode to sliced
+3.new art text componet which use just one UIWidget,keep the old one which can animate easily
+4....
 
