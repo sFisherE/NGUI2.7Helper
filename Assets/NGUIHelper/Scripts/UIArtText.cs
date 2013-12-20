@@ -14,7 +14,17 @@ public class UIArtText : MonoBehaviour
     }
     public Pivot pivot;
 
-    public string text=string.Empty;
+    [HideInInspector]
+    public string mText;
+    public string text
+    {
+        get{return mText;}
+        set
+        {
+            mText = value;
+            Generate();
+        }
+    }
     public string font;
     public UIAtlas atlas;
 

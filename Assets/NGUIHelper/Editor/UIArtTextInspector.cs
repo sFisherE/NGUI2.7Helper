@@ -69,7 +69,7 @@ public class UIArtTextInspector : Editor
         if (!text.Equals(mArtText.text)) 
         { 
             mArtText.text = text;
-            mArtText.Generate();
+            //mArtText.Generate();
         }
 
 

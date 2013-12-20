@@ -13,11 +13,27 @@ using System.IO;
 static public class NGUIHelperMenu
 {
     //便捷的测试函数
-    [MenuItem("NGUIHelper/Test #&t")]
+    [MenuItem("NGUIHelper/Test #&z")]
     public static void Test()
     {
         //string path = AssetDatabase.GetAssetPath(Selection.activeInstanceID);
         //IsScript(path);
+
+        //GameObject go = Selection.activeGameObject;
+        //Component[] coms = go.GetComponentsInChildren(typeof(MonoBehaviour), true);
+        
+        //Debug.Log(coms.Length);
+        //foreach (var v in coms)
+        //{
+        //    if (v==null)
+        //    {
+        //        Debug.Log(v);
+        //        Component.DestroyImmediate(v,true);
+        //        //GameObject.Destroy()
+                    
+        //    }
+        //}
+
     }
 
     [MenuItem("NGUIHelper/Output The Selection Path #&g")]
@@ -28,7 +44,7 @@ static public class NGUIHelperMenu
             Debug.Log(NGUIHelperUtility.GetGameObjectPath(Selection.activeGameObject));
         }
     }
-    //[MenuItem("UIEditTool/Destory All The Missing MonoBehaviour")]
+    //[MenuItem("NGUIHelper/Find The MissingMonoBehaviour Prefab")]
     public static void DestoryAllTheMissMonoBehaviour()
     {
         string path = AssetDatabase.GetAssetPath(Selection.activeInstanceID);
@@ -81,7 +97,11 @@ static public class NGUIHelperMenu
     {
         UIFontSpider window = (UIFontSpider)EditorWindow.GetWindow(typeof(UIFontSpider), false, "Font Spider");
     }
-
+    [MenuItem("NGUIHelper/Find/Missing MonoBehaviour Spider")]
+    static void CreateMissingMonoBehaviourSpiderWizard()
+    {
+        UIMissingMonoBehaviourSpider window = (UIMissingMonoBehaviourSpider)EditorWindow.GetWindow(typeof(UIMissingMonoBehaviourSpider), false, "Missing MonoBehaviour Spider");
+    }
     [MenuItem("NGUIHelper/Atlas Exchanger")]
     static public void openAtlasExchanger()
     {

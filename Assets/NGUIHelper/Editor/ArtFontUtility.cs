@@ -115,11 +115,12 @@ public class ArtFontUtility
         foreach (var v in afs.artFonts)
         {
             fontTypes.Add(v.name);
+            //charDic.Clear();
             foreach (var c in v.content.ToCharArray())
             {
                 //先把文件中相应的图片字删掉
-                charDic.Add(c.ToString(), ((int)c).ToString());
-
+                if (!charDic.ContainsKey(c.ToString()))
+                    charDic.Add(c.ToString(), ((int)c).ToString());
             }
         }
 
