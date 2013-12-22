@@ -30,8 +30,12 @@ public class NGUIHelperUtility
     #region 获取prefab
     public static List<string> GetPrefabsRecursive(string path)
     {
-        //mPrefabPaths.Clear();
         List<string> paths = new List<string>();
+        if (string.IsNullOrEmpty(path))
+        {
+            Debug.Log("path is null");
+            return paths;
+        }
         DirectoryInfo dirInfo = new DirectoryInfo(path);
         if (dirInfo != null)
         {
