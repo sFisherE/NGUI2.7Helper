@@ -1,4 +1,4 @@
-NGUI2.7Helper
+NGUI2.XHelper
 =============
 something useful in development with NGUI2.x
 include:
@@ -9,6 +9,8 @@ include:
 5.art font solution,easy to manage
 6.widgets tool,easy to adjust the atlas depth,it will be banished in NGUI3.x
 7.scan and record the sprite usage in atals, help you to eliminate the unused sprite
+8.find the missing monobehaviour
+
 
 I will upgrade these tools to NGUI3.x in future
 
