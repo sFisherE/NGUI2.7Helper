@@ -40,7 +40,7 @@ public class ArtFontUtility
     {
         ArtFontSettings so = CreateArtFontSettings();
 
-        DirectoryInfo dirInfo = new DirectoryInfo(NGUIHelperSetting.CreateNGUIHelperSetting().artFontProtoPath);
+        DirectoryInfo dirInfo = new DirectoryInfo(NGUIHelperSettings.instance.assetArtFontProtoPath);
         if (dirInfo != null)
         {
             //FileSystemInfo[] files = dirInfo.GetFileSystemInfos();
@@ -108,7 +108,7 @@ public class ArtFontUtility
         InitArtFontSettings();
         ArtFontSettings afs = CreateArtFontSettings();
 
-        DirectoryInfo dirInfo = new DirectoryInfo(NGUIHelperSetting.CreateNGUIHelperSetting().artFontProtoPath);
+        DirectoryInfo dirInfo = new DirectoryInfo(NGUIHelperSettings.instance.assetArtFontProtoPath);
         //写入文件
         Dictionary<string, string> charDic = new Dictionary<string, string>();
         List<string> fontTypes = new List<string>();
@@ -124,7 +124,7 @@ public class ArtFontUtility
             }
         }
 
-        DirectoryInfo outputDir = new DirectoryInfo(NGUIHelperSetting.CreateNGUIHelperSetting().artFontProtoPath+"/Output");
+        DirectoryInfo outputDir = new DirectoryInfo(NGUIHelperSettings.instance.assetArtFontOutputPath);
         FileInfo[] fs = outputDir.GetFiles("*.png");
         int clipLength=".png".Length;
         foreach (var  f in fs)

@@ -49,8 +49,8 @@ public class UIAtlas9PatchSlicer : EditorWindow
                 }
 
                 //string path = NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/" + spriteName + ".png";
-                mRawPath = NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name;
-                mOutputPath = NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/" + spriteName + ".png";
+                mRawPath = NGUIHelperSettings.instance.assetRawResourcePath + "/" + mAtlas.name;
+                mOutputPath = NGUIHelperSettings.instance.assetRawResourcePath + "/" + mAtlas.name + "/" + spriteName + ".png";
                 //加载的是本地备份的图片
                 mTex = AssetDatabase.LoadAssetAtPath(mOutputPath, typeof(Texture2D)) as Texture2D;
                 mSpriteEntry = AtlasUtility.ExtractSprite(mAtlas, spriteName);
@@ -85,7 +85,7 @@ public class UIAtlas9PatchSlicer : EditorWindow
         //mPath = mPath.Substring(0, mPath.Length - mTex.name.Length - ".png".Length - "/".Length);
 
         EditorGUILayout.Separator();
-        GUI.backgroundColor = NGUIHelperSetting.Blue;
+        GUI.backgroundColor = NGUIHelperSettings.Blue;
         mBorderA = NGUIEditorTools.IntPair("Border", "Left", "Right", mBorderA.x, mBorderA.y);
         mBorderB = NGUIEditorTools.IntPair(null, "Top", "Bottom", mBorderB.x, mBorderB.y);
 
@@ -287,11 +287,11 @@ public class UIAtlas9PatchSlicer : EditorWindow
     void SaveTexture(Texture2D tex, string name)
     {
         //备份原图
-        Object o = AssetDatabase.LoadAssetAtPath(NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/bak", typeof(Object));
+        Object o = AssetDatabase.LoadAssetAtPath(NGUIHelperSettings.instance.assetRawResourcePath + "/" + mAtlas.name + "/bak", typeof(Object));
         if (o == null)
             AssetDatabase.CreateFolder(mRawPath, "bak");
         //如果原来已经有一张同名的图了，作为备份的图应该还是原来的那张图，不需要覆盖
-        Object t = AssetDatabase.LoadAssetAtPath(NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlas.name + "/bak/" + name + ".png", typeof(Texture2D));
+        Object t = AssetDatabase.LoadAssetAtPath(NGUIHelperSettings.instance.assetRawResourcePath + "/" + mAtlas.name + "/bak/" + name + ".png", typeof(Texture2D));
         if (t == null)
             AssetDatabase.MoveAsset(mOutputPath, mRawPath + "/bak/" + name + ".png");
         else

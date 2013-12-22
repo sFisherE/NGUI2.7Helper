@@ -31,7 +31,7 @@ public class UIAtlasSpliter : EditorWindow
         {
             EditorGUILayout.BeginHorizontal();
             {
-                EditorGUILayout.LabelField("Target Path:   " + NGUIHelperSetting.GetRawResourcePath() + "/" + atlas.name);
+                EditorGUILayout.LabelField("Target Path:   " + NGUIHelperSettings.instance.assetRawResourcePath + "/" + atlas.name);
             }
             EditorGUILayout.EndHorizontal();
 
@@ -47,8 +47,8 @@ public class UIAtlasSpliter : EditorWindow
 
     void SaveTextures()
     {
-        AssetDatabase.DeleteAsset(NGUIHelperSetting.GetRawResourcePath() + "/" + atlas.name);//清除之前的数据
-        AssetDatabase.CreateFolder(NGUIHelperSetting.GetRawResourcePath(), atlas.name);//新建一个文件夹
+        AssetDatabase.DeleteAsset(NGUIHelperSettings.instance.assetRawResourcePath + "/" + atlas.name);//清除之前的数据
+        AssetDatabase.CreateFolder(NGUIHelperSettings.instance.assetRawResourcePath, atlas.name);//新建一个文件夹
         AssetDatabase.Refresh();
 
         Texture2D tex = atlas.texture as Texture2D;
@@ -63,7 +63,7 @@ public class UIAtlasSpliter : EditorWindow
         MakeTextureAnAtlas(ref tex);
         AssetDatabase.Refresh();
         //统一刷新一遍设置
-        List<string> paths = AtlasUtility.GetTextures(NGUIHelperSetting.GetRawResourcePath() + "/" + atlas.name);
+        List<string> paths = AtlasUtility.GetTextures(NGUIHelperSettings.instance.assetRawResourcePath + "/" + atlas.name);
         foreach ( var p in paths)
         {
             AtlasUtility.MakeTextureTrue(p);
@@ -109,7 +109,7 @@ public class UIAtlasSpliter : EditorWindow
     void SaveTexture(Texture2D tex, string name)
     {
         byte[] bytes = tex.EncodeToPNG();
-        string path = NGUIHelperSetting.GetRawResourcePath() + "/" + atlas.name + "/" + name + ".png";
+        string path = NGUIHelperSettings.instance.assetRawResourcePath + "/" + atlas.name + "/" + name + ".png";
         System.IO.File.WriteAllBytes(path, bytes);
 
         //AssetDatabase.Refresh();

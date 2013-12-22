@@ -11,17 +11,10 @@ using System.IO;
 /// </summary>
 class UIAtlasExchanger : EditorWindow
 {
-    //[MenuItem("NGUIHelper/Atlas Exchanger")]
-    //static public void openAtlasExchanger()
-    //{
-    //    EditorWindow.GetWindow<UIAtlasExchanger>(false, "Atlas Exchanger", true);
-    //}
-
     UIAtlas mAtlasA;
     UIAtlas mAtlasB;
     string mPathA;
     string mPathB;
-
 
     //同名比较难处理，直接不处理，由其他工具进行处理
     /// <summary>
@@ -78,7 +71,7 @@ class UIAtlasExchanger : EditorWindow
     void OnSelectAtlasA(Object obj)
     {
         mAtlasA = obj as UIAtlas;
-        mPathA = NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlasA.name;
+        mPathA = NGUIHelperSettings.instance.assetRawResourcePath + "/" + mAtlasA.name;
 
         mTexturesListA.Clear();
         List<string> paths = GetTextures(mPathA, true);
@@ -124,7 +117,7 @@ class UIAtlasExchanger : EditorWindow
     void OnSelectAtlasB(Object obj)
     {
         mAtlasB = obj as UIAtlas;
-        mPathB = NGUIHelperSetting.GetRawResourcePath() + "/" + mAtlasB.name;
+        mPathB = NGUIHelperSettings.instance.assetRawResourcePath + "/" + mAtlasB.name;
         mTexturesListB.Clear();
         List<string> paths = GetTextures(mPathB, false);
         foreach (var p in paths)
@@ -273,7 +266,7 @@ class UIAtlasExchanger : EditorWindow
                 }
 
                 //将相应的使用的sprite的spritename换掉
-                List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(NGUIHelperSetting.GetPrefabPath());
+                List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(NGUIHelperSettings.instance.assetPrefabPath);
                 foreach (var path in paths)
                 {
                     GameObject go = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject;

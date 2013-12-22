@@ -16,6 +16,8 @@ static public class NGUIHelperMenu
     [MenuItem("NGUIHelper/Test #&z")]
     public static void Test()
     {
+        var path = System.IO.Path.Combine(Application.dataPath, "Assets/NGUIHelperSettings.asset");
+        Debug.Log(path);
         //string path = AssetDatabase.GetAssetPath(Selection.activeInstanceID);
         //IsScript(path);
 
@@ -34,6 +36,23 @@ static public class NGUIHelperMenu
         //    }
         //}
 
+    }
+
+    [MenuItem("NGUIHelper/Settings/Init Folders")]
+    public static void InitFolders()
+    {
+        //DirectoryInfo di = new DirectoryInfo(Application.dataPath +"/"+ NGUIHelperSettings.instance.artFontOutputPath);
+        //if (!di.Exists)
+        //{
+        //    di.Create();
+        //    Debug.Log(di.ToString());
+        //    AssetDatabase.Refresh();
+        //}
+    }
+    [MenuItem("NGUIHelper/Settings/Create NGUIHelperSetting")]
+    public static void CreateSettingsAsset()
+    {
+        NGUIHelperSettings.CreateNGUIHelperSetting();
     }
 
     [MenuItem("NGUIHelper/Output The Selection Path #&g")]

@@ -27,14 +27,14 @@ public class ReplaceSprite : ScriptableWizard
     }
     void Load()
     {
-        atlasFrom = NGUIHelperSetting.instance.replace_atlasFrom;
-        atlasTo = NGUIHelperSetting.instance.replace_atlasTo;
+        atlasFrom = NGUIHelperSettings.instance.replace_atlasFrom;
+        atlasTo = NGUIHelperSettings.instance.replace_atlasTo;
     }
     void Save()
     {
-        NGUIHelperSetting.instance.replace_atlasFrom = atlasFrom;
-        NGUIHelperSetting.instance.replace_atlasTo = atlasTo;
-        EditorUtility.SetDirty(NGUIHelperSetting.instance);
+        NGUIHelperSettings.instance.replace_atlasFrom = atlasFrom;
+        NGUIHelperSettings.instance.replace_atlasTo = atlasTo;
+        EditorUtility.SetDirty(NGUIHelperSettings.instance);
     }
 
     void OnWizardCreate()

@@ -132,9 +132,9 @@ public class UIAtlasSpider : EditorWindow
                                         useInRuntime = true;
                                     //Debug.Log("useInRuntime:" + useInRuntime);
                                 }
-                                GUI.backgroundColor = spriteUseStates[s.name].useState ? NGUIHelperSetting.Green : NGUIHelperSetting.Red;
+                                GUI.backgroundColor = spriteUseStates[s.name].useState ? NGUIHelperSettings.Green : NGUIHelperSettings.Red;
                                 if (useInRuntime)
-                                    GUI.backgroundColor = NGUIHelperSetting.Green;
+                                    GUI.backgroundColor = NGUIHelperSettings.Green;
 
                                 GUILayout.Label(s.name, "HelpBox", GUILayout.Width(150), GUILayout.Height(18f));
                                 GUI.backgroundColor = Color.white;

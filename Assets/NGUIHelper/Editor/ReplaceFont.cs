@@ -20,16 +20,16 @@ public class ReplaceFont : ScriptableWizard
     }
     void Load()
     {
-        fontFrom = NGUIHelperSetting.instance.replace_fontFrom;
-        fontTo = NGUIHelperSetting.instance.replace_fontTo;
-        scaleCoeff = NGUIHelperSetting.instance.replace_fontscaleCoeff;
+        fontFrom = NGUIHelperSettings.instance.replace_fontFrom;
+        fontTo = NGUIHelperSettings.instance.replace_fontTo;
+        scaleCoeff = NGUIHelperSettings.instance.replace_fontscaleCoeff;
     }
     void Save()
     {
-        NGUIHelperSetting.instance.replace_fontFrom = fontFrom;
-        NGUIHelperSetting.instance.replace_fontTo = fontTo;
-        NGUIHelperSetting.instance.replace_fontscaleCoeff = scaleCoeff;
-        EditorUtility.SetDirty(NGUIHelperSetting.instance);
+        NGUIHelperSettings.instance.replace_fontFrom = fontFrom;
+        NGUIHelperSettings.instance.replace_fontTo = fontTo;
+        NGUIHelperSettings.instance.replace_fontscaleCoeff = scaleCoeff;
+        EditorUtility.SetDirty(NGUIHelperSettings.instance);
     }
     void OnWizardCreate()
     {
