@@ -10,6 +10,7 @@ include:
 6.widgets tool,easy to adjust the atlas depth,it will be banished in NGUI3.x
 7.scan and record the sprite usage in atals, help you to eliminate the unused sprite
 8.find the missing monobehaviour
+9.remove all unused anmationClip asset;look up the anmationClip usage.
 
 
 I will upgrade these tools to NGUI3.x in future
