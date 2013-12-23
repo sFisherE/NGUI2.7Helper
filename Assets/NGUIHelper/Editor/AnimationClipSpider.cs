@@ -1,16 +1,10 @@
-﻿using System.IO;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections;
 using UnityEditor;
 using UnityEngine;
-using System.Reflection;
-using System;
 
-/// <summary>
-///   查找某个字体的使用情况
-/// </summary>
 using Object = UnityEngine.Object;
-public class UIFontSpider : EditorWindow
+class AnimationClipSpider : EditorWindow
 {
     #region  WorkingPath
     string mPath;
@@ -45,18 +39,12 @@ public class UIFontSpider : EditorWindow
     Vector2 mScroll = Vector2.zero;
     bool mShowSpecific = false;
 
-    UIFont mFont;
+    //UIFont mFont;
+    //Object mAnimation;
+    AnimationClip mAnimationClip;
     void OnGUI()
     {
-        ComponentSelector.Draw<UIFont>("Select", mFont, obj =>
-            {
-                UIFont font = obj as UIFont;
-                if (font != mFont)
-                    mFont = font;
-            });
-
-
-        NGUIEditorTools.DrawSeparator();
+        mAnimationClip = EditorGUILayout.ObjectField(mAnimationClip, typeof(AnimationClip),false) as AnimationClip;
         DrawSelectPath();
         NGUIEditorTools.DrawSeparator();
         GUILayout.BeginHorizontal();
@@ -68,20 +56,21 @@ public class UIFontSpider : EditorWindow
             foreach (var p in paths)
             {
                 GameObject go = AssetDatabase.LoadAssetAtPath(p, typeof(GameObject)) as GameObject;
-                UILabel[] labels = go.GetComponentsInChildren<UILabel>(true);
                 bool find = false;
-                foreach (var l in labels)
+                Animation[] anims = go.GetComponentsInChildren<Animation>(true);
+                foreach (var a in anims)
                 {
-                    if (l.font == mFont)
+                    foreach ( AnimationState state in a)
                     {
-                        find = true;
-                        break;
+                        if (state.clip == mAnimationClip)
+                        {
+                            find = true;
+                            break;
+                        }
                     }
                 }
                 if (find)
-                {
                     mRelatedGameObjects.Add(go);
-                }
             }
         }
         mShowSpecific = EditorGUILayout.Toggle("Show Specific", mShowSpecific);
@@ -105,23 +94,34 @@ public class UIFontSpider : EditorWindow
                 }
                 if (mShowSpecific)
                 {
-                    UILabel[] labels = g.GetComponentsInChildren<UILabel>(true);
-                    labels = Array.FindAll(labels, p => p.font == mFont);
-
-                    foreach (var label in labels)
+                    Animation[] anims = g.GetComponentsInChildren<Animation>(true);
+                    foreach (var a in anims)
                     {
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Space(30f);
-                        string path = NGUIHelperUtility.GetGameObjectPath(label.gameObject);
-                        if (Selection.activeGameObject == label.gameObject)
-                            GUI.contentColor = Color.blue;
-                        else
-                            GUI.contentColor = new Color32(70, 70, 70, 255);
-                        if (GUILayout.Button(path, EditorStyles.whiteLabel, GUILayout.MinWidth(100f)))
+                        bool find = false;
+                        foreach (AnimationState state in a)
                         {
-                            Selection.activeGameObject = label.gameObject;
+                            if (state.clip == mAnimationClip)
+                            {
+                                find = true;
+                                break;
+                            }
                         }
-                        GUILayout.EndHorizontal();
+                        if (find)
+                        {
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Space(30f);
+                            string path = NGUIHelperUtility.GetGameObjectPath(a.gameObject);
+                            if (Selection.activeGameObject == a.gameObject)
+                                GUI.contentColor = Color.blue;
+                            else
+                                GUI.contentColor = new Color32(70, 70, 70, 255);
+                            if (GUILayout.Button(path, EditorStyles.whiteLabel, GUILayout.MinWidth(100f)))
+                            {
+                                Selection.activeGameObject = a.gameObject;
+                            }
+                            GUILayout.EndHorizontal();
+                        }
+
                     }
                 }
             }

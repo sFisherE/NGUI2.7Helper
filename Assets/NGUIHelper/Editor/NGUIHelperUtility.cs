@@ -27,8 +27,51 @@ public class NGUIHelperUtility
     }
 
 
-    #region 获取prefab
+    #region get prefabs recursive
     public static List<string> GetPrefabsRecursive(string path)
+    {
+        //List<string> paths = new List<string>();
+        //if (string.IsNullOrEmpty(path))
+        //{
+        //    Debug.Log("path is null");
+        //    return paths;
+        //}
+        //DirectoryInfo dirInfo = new DirectoryInfo(path);
+        //if (dirInfo != null)
+        //{
+        //    GetPrefabsRecursive(dirInfo, paths);
+        //}
+        return GetAssetsRecursive(path, "*.prefab");
+    }
+    //static void GetPrefabsRecursive(FileSystemInfo info, List<string> paths)
+    //{
+    //    DirectoryInfo dir = info as DirectoryInfo;
+    //    if (dir == null) return;//不是目录 
+    //    FileSystemInfo[] files = dir.GetFileSystemInfos();
+    //    FileInfo[] prefabs = dir.GetFiles("*.prefab");
+    //    foreach (FileInfo f in prefabs)
+    //    {
+    //        string fullPath = f.ToString();
+    //        System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex("Assets");
+    //        System.Text.RegularExpressions.Match match = regex.Match(fullPath);
+    //        string path = fullPath.Substring(match.Index);
+    //        paths.Add(path);
+    //    }
+    //    for (int i = 0; i < files.Length; i++)
+    //    {
+    //        FileInfo file = files[i] as FileInfo;
+    //        if (file == null)//对于子目录，进行递归调用 
+    //            GetPrefabsRecursive(files[i], paths);
+    //    }
+    //}
+    #endregion
+
+    public static List<string> GetAnimationClipsRecursive(string path)
+    {
+        return GetAssetsRecursive(path, "*.anim");
+    }
+
+    public static List<string> GetAssetsRecursive(string path,string searchPattern)
     {
         List<string> paths = new List<string>();
         if (string.IsNullOrEmpty(path))
@@ -39,17 +82,16 @@ public class NGUIHelperUtility
         DirectoryInfo dirInfo = new DirectoryInfo(path);
         if (dirInfo != null)
         {
-            GetPrefabsRecursive(dirInfo, paths);
+            GetAssetsRecursive(dirInfo, paths, searchPattern);
         }
-
         return paths;
     }
-    static void GetPrefabsRecursive(FileSystemInfo info, List<string> paths)
+    static void GetAssetsRecursive(FileSystemInfo info, List<string> paths, string searchPattern)
     {
         DirectoryInfo dir = info as DirectoryInfo;
         if (dir == null) return;//不是目录 
         FileSystemInfo[] files = dir.GetFileSystemInfos();
-        FileInfo[] prefabs = dir.GetFiles("*.prefab");
+        FileInfo[] prefabs = dir.GetFiles(searchPattern);
         foreach (FileInfo f in prefabs)
         {
             string fullPath = f.ToString();
@@ -62,11 +104,9 @@ public class NGUIHelperUtility
         {
             FileInfo file = files[i] as FileInfo;
             if (file == null)//对于子目录，进行递归调用 
-                GetPrefabsRecursive(files[i], paths);
+                GetAssetsRecursive(files[i], paths,searchPattern);
         }
     }
-    #endregion
-
 
     /// <summary>          
     /// Copy文件夹          

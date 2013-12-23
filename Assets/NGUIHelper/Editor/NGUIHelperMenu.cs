@@ -16,26 +16,8 @@ static public class NGUIHelperMenu
     [MenuItem("NGUIHelper/Test #&z")]
     public static void Test()
     {
-        var path = System.IO.Path.Combine(Application.dataPath, "Assets/NGUIHelperSettings.asset");
-        Debug.Log(path);
-        //string path = AssetDatabase.GetAssetPath(Selection.activeInstanceID);
-        //IsScript(path);
-
-        //GameObject go = Selection.activeGameObject;
-        //Component[] coms = go.GetComponentsInChildren(typeof(MonoBehaviour), true);
-        
-        //Debug.Log(coms.Length);
-        //foreach (var v in coms)
-        //{
-        //    if (v==null)
-        //    {
-        //        Debug.Log(v);
-        //        Component.DestroyImmediate(v,true);
-        //        //GameObject.Destroy()
-                    
-        //    }
-        //}
-
+        //var path = System.IO.Path.Combine(Application.dataPath, "Assets/NGUIHelperSettings.asset");
+        //Debug.Log(path);
     }
 
     [MenuItem("NGUIHelper/Settings/Init Folders")]
@@ -62,32 +44,11 @@ static public class NGUIHelperMenu
         {
             Debug.Log(NGUIHelperUtility.GetGameObjectPath(Selection.activeGameObject));
         }
-    }
-    //[MenuItem("NGUIHelper/Find The MissingMonoBehaviour Prefab")]
-    public static void DestoryAllTheMissMonoBehaviour()
-    {
-        string path = AssetDatabase.GetAssetPath(Selection.activeInstanceID);
-
-        if (!NGUIHelperUtility.IsDirectory(path))
+        else if(Selection.activeObject!=null)
         {
-            EditorUtility.DisplayDialog("warning", "you must select a directory!", "ok");
-        }
-        else
-        {
-            Debug.Log(path + " " + NGUIHelperUtility.IsDirectory(path));
-
-            List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(path);
-
-            //Object[] os = AssetDatabase.LoadAllAssetRepresentationsAtPath(path);
-            //Debug.Log(os.Length);
-            //foreach (var g in os)
-            //{
-            //    Debug.Log(g.name);
-            //}
+            //folder path
         }
     }
-
-
 
     [MenuItem("NGUIHelper/Replace/Replace Atlas")]
     static void CreateReplaceAtlasWizard()
@@ -105,7 +66,7 @@ static public class NGUIHelperMenu
         ScriptableWizard.DisplayWizard<ReplaceSprite>("Replace Sprite", "Close", "Replace");
     }
 
-
+#region  Find
     [MenuItem("NGUIHelper/Find/Atlas Spider")]
     static void CreateAtlasSpiderWizard()
     {
@@ -121,6 +82,30 @@ static public class NGUIHelperMenu
     {
         UIMissingMonoBehaviourSpider window = (UIMissingMonoBehaviourSpider)EditorWindow.GetWindow(typeof(UIMissingMonoBehaviourSpider), false, "Missing MonoBehaviour Spider");
     }
+    [MenuItem("NGUIHelper/Find/AnimationClip Spider")]
+    static void CreateAnimationClipSpider()
+    {
+        AnimationClipSpider window = (AnimationClipSpider)EditorWindow.GetWindow(typeof(AnimationClipSpider), false, "Animation Spider");
+    }
+    [MenuItem("NGUIHelper/Find/Create SpriteUsage")]
+    public static SpriteUsage CreateSpriteUsage()
+    {
+        var path = System.IO.Path.Combine("Assets/NGUIHelper/Resources", "SpriteUsage.asset");
+        var so = AssetDatabase.LoadMainAssetAtPath(path) as SpriteUsage;
+        if (so)
+            return so;
+        so = ScriptableObject.CreateInstance<SpriteUsage>();
+        DirectoryInfo di = new DirectoryInfo(Application.dataPath + "/NGUIHelper/Resources");
+        if (!di.Exists)
+        {
+            di.Create();
+        }
+        AssetDatabase.CreateAsset(so, path);
+        AssetDatabase.SaveAssets();
+        return so;
+    }
+#endregion
+
     [MenuItem("NGUIHelper/Atlas Exchanger")]
     static public void openAtlasExchanger()
     {
@@ -144,21 +129,59 @@ static public class NGUIHelperMenu
         EditorWindow.GetWindow<UITexture9PatchSlicer>(false, "Texture 9 Patch Slicer", true);
     }
 
-    [MenuItem("NGUIHelper/Find/Create SpriteUsage")]
-    public static SpriteUsage CreateSpriteUsage()
+
+#region  Destroy
+    [MenuItem("NGUIHelper/Destroy/Destroy Component")]
+    static void DestroyComponent()
     {
-        var path = System.IO.Path.Combine("Assets/NGUIHelper/Resources", "SpriteUsage.asset");
-        var so = AssetDatabase.LoadMainAssetAtPath(path) as SpriteUsage;
-        if (so)
-            return so;
-        so = ScriptableObject.CreateInstance<SpriteUsage>();
-        DirectoryInfo di = new DirectoryInfo(Application.dataPath + "/NGUIHelper/Resources");
-        if (!di.Exists)
-        {
-            di.Create();
-        }
-        AssetDatabase.CreateAsset(so, path);
-        AssetDatabase.SaveAssets();
-        return so;
+        ScriptableWizard.DisplayWizard("Destroy Component", typeof(DestroyComponent), "Close", "Destroy");
     }
+
+    [MenuItem("NGUIHelper/Destroy/Destroy All The Unused AnimationClip")]
+    static void DestroyAllTheUnusedAnimationClip()
+    {
+        string workingPath = NGUIHelperSettings.instance.assetAnimationClipPath;
+        if (string.IsNullOrEmpty(workingPath))
+        {
+            Debug.LogError("set the animationclip folder first");
+            return;
+        }
+       List<string> paths= NGUIHelperUtility.GetAnimationClipsRecursive(NGUIHelperSettings.instance.assetAnimationClipPath);
+       List<AnimationClip> clips = new List<AnimationClip>();
+        foreach ( var path in paths)
+        {
+            AnimationClip clip = AssetDatabase.LoadAssetAtPath(path, typeof(AnimationClip)) as AnimationClip;
+            if (clip!=null)
+                clips.Add(clip);
+        }
+        bool[] clipStates = new bool[clips.Count];
+        paths = NGUIHelperUtility.GetPrefabsRecursive(NGUIHelperSettings.instance.assetPrefabPath);
+        foreach (var path in paths)
+        {
+            GameObject go = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject;
+            Animation[] anims = go.GetComponentsInChildren<Animation>(true);
+            foreach ( var anim in anims)
+            {
+                foreach (AnimationState state in anim)
+                {
+                    int index = clips.FindIndex(p => (p == state.clip));
+                    if (index != -1)
+                        clipStates[index] = true;
+                }
+            }
+        }
+        bool refresh = false;
+        for (int i = 0; i < clipStates.Length;i++ )
+        {
+            if (clipStates[i]==false)
+            {
+                refresh = true;
+                Debug.Log("delete " + clips[i].name);
+                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(clips[i].GetInstanceID()));
+            }
+        }
+        if (refresh)
+            AssetDatabase.Refresh();
+    }
+#endregion
 }

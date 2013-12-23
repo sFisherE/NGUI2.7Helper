@@ -85,6 +85,11 @@ public class NGUIHelperSettings : ScriptableObject
     public UIAtlas replace_atlasTo;
 
 
+    public string animationClipPath;
+    public string assetAnimationClipPath
+    {
+        get { return CreateAssetPath(animationClipPath); }
+    }
     public static readonly Color Blue = new Color(0f, 0.7f, 1f, 1f);
     public static readonly Color Green = new Color(0.4f, 1f, 0f, 1f);
     public static readonly Color Red = new Color32(255, 146, 146, 255);
