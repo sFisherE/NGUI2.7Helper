@@ -19,6 +19,16 @@ static public class NGUIHelperMenu
         //var path = System.IO.Path.Combine(Application.dataPath, "Assets/NGUIHelperSettings.asset");
         //Debug.Log(path);
     }
+    [MenuItem("NGUIHelper/WidgetTool")]
+    static void ShowWidgetTool()
+    {
+        UIWidgetTool window = (UIWidgetTool)EditorWindow.GetWindow(typeof(UIWidgetTool), false, "Widget Tool");
+    }
+    [MenuItem("NGUIHelper/WidgetTool2")]
+    static void ShowWidgetTool2()
+    {
+        UIWidgetTool2 window = (UIWidgetTool2)EditorWindow.GetWindow(typeof(UIWidgetTool2), false, "Widget Tool2");
+    }
 
     [MenuItem("NGUIHelper/Settings/Init Folders")]
     public static void InitFolders()
