@@ -16,6 +16,11 @@ public class NGUIHelperSettings : ScriptableObject
         {
             if (mInstance == null)
                 mInstance = CreateNGUIHelperSetting();
+
+            if (mInstance.localizeTxt != null && mInstance.mLocalizeDictionary.Count == 0)
+            {
+                mInstance.InitLocalization();
+            }
             return mInstance;
         }
     }
@@ -90,6 +95,67 @@ public class NGUIHelperSettings : ScriptableObject
     {
         get { return CreateAssetPath(animationClipPath); }
     }
+
+    //when user change the txt outside the editor,how to detect it and reinitialize the dictionary???
+    [SerializeField]
+    public TextAsset localizeTxt;
+    Dictionary<string, string> mLocalizeDictionary = new Dictionary<string, string>();
+    public string GetLocalizeValue(string key)
+    {
+        string val;
+        if (mLocalizeDictionary.TryGetValue(key, out val)) 
+            return val;
+        return string.Empty;
+    }
+    public string TryGetLocalizeKey(string value)
+    {
+        foreach (var item in mLocalizeDictionary )
+        {
+            if (item.Value == value)
+                return item.Key;
+        }
+        return string.Empty;
+    }
+    public void AddNewLocalize(string key, string value)
+    {
+        if (!mLocalizeDictionary.ContainsKey(key))
+        {
+            mLocalizeDictionary.Add(key, value);
+            //add new record
+            StreamWriter sw = new StreamWriter(AssetDatabase.GetAssetPath(localizeTxt), true);
+            sw.WriteLine(string.Format("{0}={1}", key, value));
+            sw.Close();
+            AssetDatabase.Refresh();
+        }
+    }
+    public void DeleteLocalize(string key)
+    {
+        mLocalizeDictionary.Remove(key);
+        FileStream fs = new FileStream(AssetDatabase.GetAssetPath(localizeTxt), FileMode.Create, FileAccess.Write);
+        StreamWriter sw = new StreamWriter(fs, System.Text.Encoding.UTF8);
+        foreach (var item in mLocalizeDictionary)
+        {
+            sw.WriteLine(string.Format("{0}={1}", item.Key, item.Value));
+        }
+        sw.Close();
+        fs.Close();
+        AssetDatabase.Refresh();
+    }
+
+    bool mLocalizeInited=false;
+    public void InitLocalization()
+    {
+        if (mLocalizeInited)
+            return;
+        if (localizeTxt!=null)
+        {
+            ByteReader reader = new ByteReader(localizeTxt);
+            mLocalizeDictionary = reader.ReadDictionary();
+        }
+    }
+
+
+
     public static readonly Color Blue = new Color(0f, 0.7f, 1f, 1f);
     public static readonly Color Green = new Color(0.4f, 1f, 0f, 1f);
     public static readonly Color Red = new Color32(255, 146, 146, 255);
