@@ -11,6 +11,7 @@ include:
 7.scan and record the sprite usage in atals, help you to eliminate the unused sprite
 8.find the missing monobehaviour
 9.remove all unused anmationClip asset;look up the anmationClip usage.
+10.Localize Editor,make edit easily,quickly
 
 
 I will upgrade these tools to NGUI3.x in future
@@ -19,5 +20,4 @@ todo：
 1.widgetsTool need to optimize with it's interface and add more function to multiple widgets operation 
 2.9 patch tool need automatic change the related UISprite component mode to sliced
 3.new art text componet which use just one UIWidget,keep the old one which can animate easily
-4.create UILocalize Editor,it can enter a string and automatically find the key,if the string 
-is not exist,it can create a new record in the language file
+4....
