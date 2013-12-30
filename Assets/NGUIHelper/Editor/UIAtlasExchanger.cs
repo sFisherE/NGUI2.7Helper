@@ -305,8 +305,10 @@ class UIAtlasExchanger : EditorWindow
                 mRemoveFromA.Clear();
                 mRemoveFromB.Clear();
                 AssetDatabase.Refresh();
-                Resources.UnloadUnusedAssets();
-                //重新刷新一遍数据
+                //it is async,it can't be called here;
+                //Resources.UnloadUnusedAssets();
+
+                //reselect atlas
                 OnSelectAtlasA(mAtlasA);
                 OnSelectAtlasB(mAtlasB);
             }

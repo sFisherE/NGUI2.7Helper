@@ -122,6 +122,8 @@ public class ComponentSpider : EditorWindow
             foreach (var g in mRelatedGameObjects)
             {
                 //GUILayout.Label(AssetDatabase.GetAssetPath(g));
+                if (g==null)
+                    continue;
 
                 if (Selection.activeGameObject ==g)
                     GUI.contentColor = Color.blue;
