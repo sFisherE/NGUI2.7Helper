@@ -12,6 +12,7 @@ include:
 8.find the missing monobehaviour
 9.remove all unused anmationClip asset;look up the anmationClip usage.
 10.Localize Editor,make edit easily,quickly
+11.simple layout tool(fully utilize the unity3d'buildin Project Browser) to make ui layout easily,just drag and drop the texture in the specialized folder,press shift or alt to change the setting,wip,more functions to add.
 
 
 I will upgrade these tools to NGUI3.x in future
