@@ -194,4 +194,47 @@ static public class NGUIHelperMenu
             AssetDatabase.Refresh();
     }
 #endregion
+
+
+#region Layout
+    [MenuItem("NGUIHelper/Layout/UILayouter")]
+    public static void CreateEditorWindow()
+    {
+        UILayouter window = EditorWindow.GetWindow<UILayouter>("UILayouter");
+    }
+    [MenuItem("NGUIHelper/Layout/Create AtlasCollection")]
+    public static void CreateAtlasCollection()
+    {
+        UIAtlasCollection.CreateAtlasCollection();
+    }
+    [MenuItem("NGUIHelper/Layout/Init AtlasCollection")]
+    public static void InitAtlasCollection()
+    {
+        string workingPath = NGUIHelperSettings.instance.assetAtlasPath;
+        if (string.IsNullOrEmpty(workingPath))
+        {
+            Debug.LogError("set the atlas folder first");
+            return;
+        }
+        List<string> paths = NGUIHelperUtility.GetPrefabsRecursive(workingPath);
+        foreach (var path in paths)
+        {
+            GameObject go = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject;
+            if (go != null)
+            {
+                UIAtlas atlas = go.GetComponent<UIAtlas>();
+                if (atlas!=null)
+                {
+                    List<UIAtlas> atlases = UIAtlasCollection.instance.atlases;
+                    if (atlases == null)
+                        atlases = new List<UIAtlas>();
+                    if (!atlases.Contains(atlas))
+                    {
+                        atlases.Add(atlas);
+                    }
+                }
+            }
+        }
+    }
+#endregion
 }

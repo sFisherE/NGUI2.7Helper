@@ -10,9 +10,6 @@ using UnityEditor;
 /// </summary>
 public class DestroyComponent : ScriptableWizard
 {
-
-
-
 #region TypeInit
     public DestroyComponent()
     {
@@ -20,7 +17,6 @@ public class DestroyComponent : ScriptableWizard
     }
     private List<Type> mTypes = new List<Type>();
 #endregion
-
     public string componentName;
     public UnityEngine.Object folder;
     public string path;

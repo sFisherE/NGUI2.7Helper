@@ -7,11 +7,7 @@ using System.IO;
 
 public class UILayouter : EditorWindow
 {
-    [MenuItem("NGUIHelper/UILayouter")]
-    public static void CreateEditorWindow()
-    {
-        UILayouter window = EditorWindow.GetWindow<UILayouter>("UILayouter");
-    }
+
     private Object[] mSelectedObjects = null;
     private void OnEnable()
     {
@@ -33,21 +29,67 @@ public class UILayouter : EditorWindow
     {
         mRoot = (Transform)EditorGUILayout.ObjectField("Select Root:", this.mRoot, typeof(Transform), true, GUILayout.ExpandWidth(true));
         //place reference background
-        GUILayout.BeginHorizontal();
-        mReferenceTexture = (Texture)EditorGUILayout.ObjectField("Select Reference:", this.mReferenceTexture, typeof(Texture), true, GUILayout.ExpandWidth(true));
-        if (GUILayout.Button("Create"))
-        {
-            GameObject go = new GameObject("Reference_" + mReferenceTexture.name);
-            go.transform.parent = mRoot;
-            UITexture com = go.AddComponent<UITexture>();
-            com.depth = -100;
-            com.mainTexture = mReferenceTexture;
-            com.MakePixelPerfect();
-        }
-        GUILayout.EndHorizontal();
+        //GUILayout.BeginHorizontal();
+        //mReferenceTexture = (Texture)EditorGUILayout.ObjectField("Select Reference:", this.mReferenceTexture, typeof(Texture), true, GUILayout.ExpandWidth(true));
+        //if (GUILayout.Button("Create"))
+        //{
+        //    GameObject go = new GameObject("Reference_" + mReferenceTexture.name);
+        //    go.transform.parent = mRoot;
+        //    UITexture com = go.AddComponent<UITexture>();
+        //    com.depth = -100;
+        //    com.mainTexture = mReferenceTexture;
+        //    com.MakePixelPerfect();
+        //}
+        //GUILayout.EndHorizontal();
         NGUIEditorTools.DrawSeparator();
 
-        //create anchor node
+        //create node
+
+
+        //flip horizontal or vertical
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Init"))
+        {
+            GameObject selectGo = Selection.activeGameObject;
+            if (selectGo != null && selectGo.activeInHierarchy)
+                selectGo.transform.localEulerAngles = Vector3.zero;
+        }
+        if (GUILayout.Button("Flip Horizontal"))
+        {
+            GameObject selectGo = Selection.activeGameObject;
+            if (selectGo != null && selectGo.activeInHierarchy)
+            {
+                Vector3 eulerAngles = selectGo.transform.localEulerAngles;
+                eulerAngles.y += 180;
+                selectGo.transform.localEulerAngles = eulerAngles;
+            }
+        }
+        if (GUILayout.Button("Flip Vertical"))
+        {
+            GameObject selectGo = Selection.activeGameObject;
+            if (selectGo != null && selectGo.activeInHierarchy)
+            {
+                Vector3 eulerAngles = selectGo.transform.localEulerAngles;
+                eulerAngles.x += 180;
+                selectGo.transform.localEulerAngles = eulerAngles;
+            }
+        }
+        GUILayout.EndHorizontal();
+        //view control
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("100%"))
+        {
+            
+        }
+        if (GUILayout.Button("50%"))
+        {
+        }
+        if (GUILayout.Button("200%"))
+        {
+        }
+        GUILayout.EndHorizontal();
+
+
     }
 
     private void OnSceneGUI(SceneView sceneView)
@@ -101,7 +143,7 @@ public class UILayouter : EditorWindow
 
         for (int index = 0; index < textureCount; ++index)
         {
-            generatedSprites[index] = this.CreateSprite(texturesList[index], position, alt);
+            generatedSprites[index] = this.CreateSprite(texturesList[index], position, shift);
         }
 
         return generatedSprites;
@@ -125,18 +167,26 @@ public class UILayouter : EditorWindow
             string path = AssetDatabase.GetAssetPath(texture);
             string atlasName = Path.GetFileName(Path.GetDirectoryName(path));
             UIAtlas atlas = UIAtlasCollection.instance.atlases.Find(p => p.name == atlasName);
-            if (atlas!=null)
+            if (atlas != null)
             {
                 GameObject go = new GameObject("Sprite_" + texture.name);
                 go.transform.parent = mRoot;
                 UISprite com = go.AddComponent<UISprite>();
                 com.atlas = atlas;
                 com.spriteName = texture.name;
-                com.MakePixelPerfect();
-                if (com.transform.localScale.x<100 && com.transform.localScale.y<50)
+                string spriteName = texture.name;
+                UIAtlas.Sprite spriteData = atlas.spriteList.Find(p => p.name == spriteName);
+                if (spriteData.inner.Equals(spriteData.outer))
                 {
+                    //Debug.Log("simple sprite");
+                    com.MakePixelPerfect();
+                }
+                else
+                {
+                    //Debug.Log("sliced sprite");
                     com.type = UISprite.Type.Sliced;
-                    com.transform.localScale = new Vector3(100, 50, 1);
+                    if (com.transform.localScale.x < 100 && com.transform.localScale.y < 50)
+                        com.transform.localScale = new Vector3(100, 50, 1);
                 }
                 return go;
             }
@@ -155,12 +205,12 @@ public class UILayouter : EditorWindow
         //Debug.Log(path);
         ////check the filename is atlas
         //Debug.Log(Path.GetFileName(Path.GetDirectoryName(path)));
-        
+
 
         // Create sprite game object
         GameObject spriteGameObject = CreateSprite(texture, shift);
         // Set creation position
-        if (spriteGameObject!=null)
+        if (spriteGameObject != null)
         {
             spriteGameObject.transform.position = creationPosition;
         }

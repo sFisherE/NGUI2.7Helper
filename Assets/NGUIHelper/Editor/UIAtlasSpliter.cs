@@ -23,7 +23,9 @@ public class UIAtlasSpliter : EditorWindow
         //EditorGUILayout.HelpBox("The atlas prefab Coordinates must be \"Pixels\"", MessageType.None);
         EditorGUILayout.BeginHorizontal();
         //控制label宽度
+#if UNITY_4_3
         EditorGUIUtility.labelWidth = 80f;
+#endif
         ComponentSelector.Draw<UIAtlas>("Select", atlas, OnSelectAtlas);
 
         EditorGUILayout.EndHorizontal();
@@ -131,7 +133,9 @@ public class UIAtlasSpliter : EditorWindow
     Vector2 mPos;
     void DrawSprites()
     {
+#if UNITY_4_3
         EditorGUIUtility.labelWidth = 80f;
+#endif
         if (atlas == null)
         {
             GUILayout.Label("No Atlas selected.", "LODLevelNotifyText");

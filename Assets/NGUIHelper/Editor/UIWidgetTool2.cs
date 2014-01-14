@@ -239,7 +239,8 @@ public class UIWidgetTool2 : EditorWindow
             float sum = 0;
             foreach (var sprite in ae.sprites)
             {
-                sum += sprite.transform.localPosition.z;
+                if (sprite!=null)
+                    sum += sprite.transform.localPosition.z;
             }
             float meanDepth = sum / ae.sprites.Count;
             GUILayout.Label(string.Format("Mean Depth:{0}", meanDepth), GUILayout.Width(150));

@@ -95,7 +95,11 @@ public class NGUIHelperSettings : ScriptableObject
     {
         get { return CreateAssetPath(animationClipPath); }
     }
-
+    public string atlasPath;
+    public string assetAtlasPath
+    {
+        get { return CreateAssetPath(atlasPath); }
+    }
     //when user change the txt outside the editor,how to detect it and reinitialize the dictionary???
     [SerializeField]
     public TextAsset localizeTxt;

@@ -307,8 +307,7 @@ class UIAtlasExchanger : EditorWindow
                 AssetDatabase.Refresh();
                 //it is async,it can't be called here;
                 //Resources.UnloadUnusedAssets();
-
-                //reselect atlas
+                //重新刷新一遍数据
                 OnSelectAtlasA(mAtlasA);
                 OnSelectAtlasB(mAtlasB);
             }
@@ -406,7 +405,9 @@ class UIAtlasExchanger : EditorWindow
     void DrawTextures(bool left)
     {
         List<Texture2D> textures = left ? mTexturesListA : mTexturesListB;
+#if UNITY_4_3
         EditorGUIUtility.labelWidth = 80f;
+#endif
         bool close = false;
         GUILayout.Label(left ? mAtlasA.name : mAtlasB.name + " Sprites", "LODLevelNotifyText");
         NGUIEditorTools.DrawSeparator();
