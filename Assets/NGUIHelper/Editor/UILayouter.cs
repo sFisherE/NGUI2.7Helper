@@ -49,47 +49,131 @@ public class UILayouter : EditorWindow
         //flip horizontal or vertical
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("Init"))
-        {
-            GameObject selectGo = Selection.activeGameObject;
-            if (selectGo != null && selectGo.activeInHierarchy)
-                selectGo.transform.localEulerAngles = Vector3.zero;
-        }
+            AdjustTransform(TransformAdjustType.Init);
         if (GUILayout.Button("Flip Horizontal"))
-        {
-            GameObject selectGo = Selection.activeGameObject;
-            if (selectGo != null && selectGo.activeInHierarchy)
-            {
-                Vector3 eulerAngles = selectGo.transform.localEulerAngles;
-                eulerAngles.y += 180;
-                selectGo.transform.localEulerAngles = eulerAngles;
-            }
-        }
+            AdjustTransform(TransformAdjustType.FlipHorizontal);
         if (GUILayout.Button("Flip Vertical"))
-        {
-            GameObject selectGo = Selection.activeGameObject;
-            if (selectGo != null && selectGo.activeInHierarchy)
-            {
-                Vector3 eulerAngles = selectGo.transform.localEulerAngles;
-                eulerAngles.x += 180;
-                selectGo.transform.localEulerAngles = eulerAngles;
-            }
-        }
+            AdjustTransform(TransformAdjustType.FlipVertical);
         GUILayout.EndHorizontal();
         //view control
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("100%"))
         {
-            
+            ResizeSceneView(1f);
         }
-        if (GUILayout.Button("50%"))
+        if (GUILayout.Button("Recommend"))
         {
-        }
-        if (GUILayout.Button("200%"))
-        {
+            ResizeSceneView(1.5f);
         }
         GUILayout.EndHorizontal();
 
+        GUILayout.BeginHorizontal();
+        GUILayout.Space(20);
+        Toggle("◤", "ButtonLeft", UIAnchor.Side.Left, true);
+        Toggle("▲ ", "ButtonLeft", UIAnchor.Side.Left, true);
+        Toggle("◥ ", "ButtonLeft", UIAnchor.Side.Left, true);
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        GUILayout.Space(20);
+        Toggle("\u25C4 ", "ButtonLeft", UIAnchor.Side.Left, true);
+        Toggle("● ", "ButtonLeft", UIAnchor.Side.Left, true);
+        Toggle("\u25BA ", "ButtonLeft", UIAnchor.Side.Left, true);
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        GUILayout.Space(20);
+        Toggle("◣ ", "ButtonLeft", UIAnchor.Side.Left, true);
+        Toggle("▼ ", "ButtonLeft", UIAnchor.Side.Left, true);
+        Toggle("◢ ", "ButtonLeft", UIAnchor.Side.Left, true);
+        GUILayout.EndHorizontal();
 
+        //Toggle("\u25AC", "ButtonMid", UIWidget.Pivot.Center, true);
+        //Toggle("\u25BA", "ButtonRight", UIWidget.Pivot.Right, true);
+        //Toggle("\u25B2", "ButtonLeft", UIWidget.Pivot.Top, false);
+        //Toggle("\u258C", "ButtonMid", UIWidget.Pivot.Center, false);
+        //Toggle("\u25BC", "ButtonRight", UIWidget.Pivot.Bottom, false);
+    }
+    void Toggle(string text, string style,UIAnchor.Side side, bool isHorizontal)
+    {
+        bool isActive = false;
+
+        switch (side)
+        {
+            case UIAnchor.Side.Left:
+                isActive = anchorSide == UIAnchor.Side.Left;
+                break;
+            //case UIWidget.Pivot.Right:
+            //    isActive = IsRight(mWidget.pivot);
+            //    break;
+
+            //case UIWidget.Pivot.Top:
+            //    isActive = IsTop(mWidget.pivot);
+            //    break;
+
+            //case UIWidget.Pivot.Bottom:
+            //    isActive = IsBottom(mWidget.pivot);
+            //    break;
+
+            //case UIWidget.Pivot.Center:
+            //    isActive = isHorizontal ? pivot == GetHorizontal(mWidget.pivot) : pivot == GetVertical(mWidget.pivot);
+            //    break;
+        }
+        
+        if (GUILayout.Toggle(isActive, text,"Button", GUILayout.Width(40)) != isActive)
+        {
+
+        }
+    }
+
+    UIAnchor.Side anchorSide = UIAnchor.Side.Center;
+    void ResizeSceneView(float multiply)
+    {
+        if (Selection.activeGameObject != null && Selection.activeGameObject.activeInHierarchy)
+        {
+            GameObject selected = Selection.activeGameObject;
+            UIWidget widget = selected.GetComponent<UIWidget>();
+            if (widget != null)
+            {
+                Handles.color = Color.red;
+                Vector3[] worldPos = NGUIMath.CalculateWidgetCorners(widget);
+                Vector2[] screenPos = new Vector2[4];
+                for (int i = 0; i < 4; ++i)
+                    screenPos[i] = HandleUtility.WorldToGUIPoint(worldPos[i]);
+                Bounds b = new Bounds(screenPos[0], Vector3.zero);
+                for (int i = 1; i < 4; ++i)
+                    b.Encapsulate(screenPos[i]);
+                float num = b.extents.magnitude * multiply;
+                SceneView.currentDrawingSceneView.LookAt(selected.transform.position, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), num);
+            }
+        }
+        SceneView.RepaintAll();
+    }
+    enum TransformAdjustType
+    {
+        Init,
+        FlipHorizontal,
+        FlipVertical
+    }
+    void AdjustTransform(TransformAdjustType type)
+    {
+        GameObject selectGo = Selection.activeGameObject;
+        if (selectGo != null && selectGo.activeInHierarchy)
+        {
+            Vector3 eulerAngles = selectGo.transform.localEulerAngles;
+            switch (type)
+            {
+                case TransformAdjustType.Init:
+                    selectGo.transform.localEulerAngles = Vector3.zero;
+                    break;
+                case TransformAdjustType.FlipHorizontal:
+                    eulerAngles.y += 180;
+                    selectGo.transform.localEulerAngles = eulerAngles;
+                    break;
+                case TransformAdjustType.FlipVertical:
+                    eulerAngles.x += 180;
+                    selectGo.transform.localEulerAngles = eulerAngles;
+                    break;
+            }
+        }
     }
 
     private void OnSceneGUI(SceneView sceneView)
@@ -176,6 +260,11 @@ public class UILayouter : EditorWindow
                 com.spriteName = texture.name;
                 string spriteName = texture.name;
                 UIAtlas.Sprite spriteData = atlas.spriteList.Find(p => p.name == spriteName);
+                if (spriteData == null)
+                {
+                    Debug.LogError(string.Format("atlas {0} does't have the sprite {1}", atlas.name, spriteName));
+                    return null;
+                }
                 if (spriteData.inner.Equals(spriteData.outer))
                 {
                     //Debug.Log("simple sprite");
