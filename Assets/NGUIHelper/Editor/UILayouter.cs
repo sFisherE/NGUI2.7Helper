@@ -24,10 +24,25 @@ public class UILayouter : EditorWindow
         mSelectedObjects = Selection.GetFiltered(typeof(Texture2D), SelectionMode.Assets);
     }
     Transform mRoot;
+    Camera mCamera;
     Texture mReferenceTexture;
     void OnGUI()
     {
         mRoot = (Transform)EditorGUILayout.ObjectField("Select Root:", this.mRoot, typeof(Transform), true, GUILayout.ExpandWidth(true));
+        if (mCamera==null)
+        {
+            Camera[] cameras = GameObject.FindObjectsOfType(typeof(Camera)) as Camera[];
+            foreach (var c in cameras)
+            {
+                UICamera uic = c.GetComponent<UICamera>();
+                if (uic!=null)
+                {
+                    mCamera = c;
+                    break;
+                }
+            }
+        }
+        mCamera = (Camera)EditorGUILayout.ObjectField("Select Camera:", this.mCamera, typeof(Camera), true, GUILayout.ExpandWidth(true));
         //place reference background
         //GUILayout.BeginHorizontal();
         //mReferenceTexture = (Texture)EditorGUILayout.ObjectField("Select Reference:", this.mReferenceTexture, typeof(Texture), true, GUILayout.ExpandWidth(true));
@@ -66,31 +81,65 @@ public class UILayouter : EditorWindow
             ResizeSceneView(1.5f);
         }
         GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        GUILayout.BeginVertical();
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(20);
+            Toggle("◤", "ButtonLeft", UIAnchor.Side.TopLeft, true);
+            Toggle("▲ ", "ButtonLeft", UIAnchor.Side.Top, true);
+            Toggle("◥ ", "ButtonLeft", UIAnchor.Side.TopRight, true);
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(20);
+            Toggle("\u25C4 ", "ButtonLeft", UIAnchor.Side.Left, true);
+            Toggle("● ", "ButtonLeft", UIAnchor.Side.Center, true);
+            Toggle("\u25BA ", "ButtonLeft", UIAnchor.Side.Right, true);
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(20);
+            Toggle("◣ ", "ButtonLeft", UIAnchor.Side.BottomLeft, true);
+            Toggle("▼ ", "ButtonLeft", UIAnchor.Side.Bottom, true);
+            Toggle("◢ ", "ButtonLeft", UIAnchor.Side.BottomRight, true);
+            GUILayout.EndHorizontal();
+        }
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        {
+            GUILayout.BeginHorizontal();
+            //if (GUILayout.Button("Config"))
+            //{
+            //    CreateAnchorNode(UIAnchor.Side.Left);
+            //    CreateAnchorNode(UIAnchor.Side.Right);
+            //    CreateAnchorNode(UIAnchor.Side.Top);
+            //    CreateAnchorNode(UIAnchor.Side.Bottom);
+            //    CreateAnchorNode(UIAnchor.Side.BottomLeft);
+            //    CreateAnchorNode(UIAnchor.Side.BottomRight);
+            //    CreateAnchorNode(UIAnchor.Side.Center);
+            //    CreateAnchorNode(UIAnchor.Side.TopLeft);
+            //    CreateAnchorNode(UIAnchor.Side.TopRight);
+            //    //CreateAnchorNode(UIAnchor.Side.Left);
+            //}
+            //GUILayout.Space(50);
+            //EditorGUILayout.IntField("Width:",100);
+            GUILayout.EndHorizontal();
+        }
+        GUILayout.EndVertical();
+        GUILayout.EndHorizontal();
+    }
 
-        GUILayout.BeginHorizontal();
-        GUILayout.Space(20);
-        Toggle("◤", "ButtonLeft", UIAnchor.Side.Left, true);
-        Toggle("▲ ", "ButtonLeft", UIAnchor.Side.Left, true);
-        Toggle("◥ ", "ButtonLeft", UIAnchor.Side.Left, true);
-        GUILayout.EndHorizontal();
-        GUILayout.BeginHorizontal();
-        GUILayout.Space(20);
-        Toggle("\u25C4 ", "ButtonLeft", UIAnchor.Side.Left, true);
-        Toggle("● ", "ButtonLeft", UIAnchor.Side.Left, true);
-        Toggle("\u25BA ", "ButtonLeft", UIAnchor.Side.Left, true);
-        GUILayout.EndHorizontal();
-        GUILayout.BeginHorizontal();
-        GUILayout.Space(20);
-        Toggle("◣ ", "ButtonLeft", UIAnchor.Side.Left, true);
-        Toggle("▼ ", "ButtonLeft", UIAnchor.Side.Left, true);
-        Toggle("◢ ", "ButtonLeft", UIAnchor.Side.Left, true);
-        GUILayout.EndHorizontal();
-
-        //Toggle("\u25AC", "ButtonMid", UIWidget.Pivot.Center, true);
-        //Toggle("\u25BA", "ButtonRight", UIWidget.Pivot.Right, true);
-        //Toggle("\u25B2", "ButtonLeft", UIWidget.Pivot.Top, false);
-        //Toggle("\u258C", "ButtonMid", UIWidget.Pivot.Center, false);
-        //Toggle("\u25BC", "ButtonRight", UIWidget.Pivot.Bottom, false);
+    void CreateAnchorNode(UIAnchor.Side side)
+    {
+        string nodeName=side.ToString();
+        Transform pre = mRoot.FindChild(nodeName);
+        if (pre!=null)
+            GameObject.DestroyImmediate(pre.gameObject);
+        GameObject go = new GameObject(nodeName);
+        go.transform.parent = mRoot;
+        UIAnchor com = go.AddComponent<UIAnchor>();
+        com.uiCamera = mCamera;
+        com.side = side;
+        com.UpdatePosition();
     }
     void Toggle(string text, string style,UIAnchor.Side side, bool isHorizontal)
     {
@@ -98,33 +147,62 @@ public class UILayouter : EditorWindow
 
         switch (side)
         {
+            case UIAnchor.Side.TopLeft:
+                isActive = anchorSide == UIAnchor.Side.TopLeft;
+                break;
+            case UIAnchor.Side.Top:
+                isActive = anchorSide == UIAnchor.Side.Top;
+                break;
+            case UIAnchor.Side.TopRight:
+                isActive = anchorSide == UIAnchor.Side.TopRight;
+                break;
             case UIAnchor.Side.Left:
                 isActive = anchorSide == UIAnchor.Side.Left;
                 break;
-            //case UIWidget.Pivot.Right:
-            //    isActive = IsRight(mWidget.pivot);
-            //    break;
-
-            //case UIWidget.Pivot.Top:
-            //    isActive = IsTop(mWidget.pivot);
-            //    break;
-
-            //case UIWidget.Pivot.Bottom:
-            //    isActive = IsBottom(mWidget.pivot);
-            //    break;
-
-            //case UIWidget.Pivot.Center:
-            //    isActive = isHorizontal ? pivot == GetHorizontal(mWidget.pivot) : pivot == GetVertical(mWidget.pivot);
-            //    break;
+            case UIAnchor.Side.Center:
+                isActive = anchorSide == UIAnchor.Side.Center;
+                break;
+            case UIAnchor.Side.Right:
+                isActive = anchorSide == UIAnchor.Side.Right;
+                break;
+            case UIAnchor.Side.BottomLeft:
+                isActive = anchorSide == UIAnchor.Side.BottomLeft;
+                break;
+            case UIAnchor.Side.Bottom:
+                isActive = anchorSide == UIAnchor.Side.Bottom;
+                break;
+            case UIAnchor.Side.BottomRight:
+                isActive = anchorSide == UIAnchor.Side.BottomRight;
+                break;
         }
         
         if (GUILayout.Toggle(isActive, text,"Button", GUILayout.Width(40)) != isActive)
         {
-
+            anchorSide = side;
         }
     }
 
     UIAnchor.Side anchorSide = UIAnchor.Side.Center;
+    Transform anchorNode
+    {
+        get
+        {
+            string nodeName = anchorSide.ToString();
+            Transform cur = mRoot.FindChild(nodeName);
+            if (cur==null)
+            {
+                GameObject go = new GameObject(nodeName);
+                go.transform.parent = mRoot;
+                UIAnchor com = go.AddComponent<UIAnchor>();
+                com.uiCamera = mCamera;
+                com.side = anchorSide;
+                com.UpdatePosition();
+                return go.transform;
+            }
+            else
+                return cur;
+        }
+    }
     void ResizeSceneView(float multiply)
     {
         if (Selection.activeGameObject != null && Selection.activeGameObject.activeInHierarchy)
@@ -254,7 +332,7 @@ public class UILayouter : EditorWindow
             if (atlas != null)
             {
                 GameObject go = new GameObject("Sprite_" + texture.name);
-                go.transform.parent = mRoot;
+                go.transform.parent = anchorNode;
                 UISprite com = go.AddComponent<UISprite>();
                 com.atlas = atlas;
                 com.spriteName = texture.name;
