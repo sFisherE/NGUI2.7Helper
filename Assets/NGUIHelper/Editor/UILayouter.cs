@@ -139,7 +139,9 @@ public class UILayouter : EditorWindow
         UIAnchor com = go.AddComponent<UIAnchor>();
         com.uiCamera = mCamera;
         com.side = side;
-        com.UpdatePosition();
+        //com.UpdatePosition();
+        //go.SendMessage("Update",  SendMessageOptions.DontRequireReceiver);
+
     }
     void Toggle(string text, string style,UIAnchor.Side side, bool isHorizontal)
     {
@@ -196,7 +198,8 @@ public class UILayouter : EditorWindow
                 UIAnchor com = go.AddComponent<UIAnchor>();
                 com.uiCamera = mCamera;
                 com.side = anchorSide;
-                com.UpdatePosition();
+//                com.UpdatePosition();
+                //go.SendMessage("Update", SendMessageOptions.DontRequireReceiver);
                 return go.transform;
             }
             else

@@ -198,9 +198,9 @@ static public class NGUIHelperMenu
 
 #region Layout
     [MenuItem("NGUIHelper/Layout/UILayouter")]
-    public static void CreateEditorWindow()
+    public static void CreateLayoutWindow()
     {
-        UILayouter window = EditorWindow.GetWindow<UILayouter>("UILayouter");
+        UILayouter window = EditorWindow.GetWindow<UILayouter>(false, "UILayouter", true);
     }
     [MenuItem("NGUIHelper/Layout/Create AtlasCollection")]
     public static void CreateAtlasCollection()
@@ -235,6 +235,7 @@ static public class NGUIHelperMenu
                 }
             }
         }
+        EditorUtility.SetDirty(UIAtlasCollection.instance);
     }
 #endregion
 }
