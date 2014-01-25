@@ -2,14 +2,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>
-/// 预添加：
-///   
-///   
-/// </summary>
-public class UIWidgetTool2 : EditorWindow
+public class UIWidgetsTool : EditorWindow
 {
-
     static void SetActiveState(Transform t, bool state)
     {
         for (int i = 0; i < t.childCount; ++i)
@@ -75,7 +69,9 @@ public class UIWidgetTool2 : EditorWindow
     {
         public bool enable = true;
         public UIAtlas atlas;
-       public List<UISprite> sprites = new List<UISprite>();
+        public List<UISprite> sprites = new List<UISprite>();
+        public float meanZDepth;
+        public bool showRelated;
     }
     [SerializeField]
     List<AtlasEntry> mAtlases = new List<AtlasEntry>();
@@ -85,46 +81,50 @@ public class UIWidgetTool2 : EditorWindow
         public bool enable = true;
         public UIFont font;
         public List<UILabel> labels = new List<UILabel>();
+        public float meanZDepth;
+        public bool showRelated;
     }
     [SerializeField]
     List<FontEntry> mFonts = new List<FontEntry>();
-
+    void Flush(Transform tf)
+    {
+        mSelectedFilterTransform = tf;
+        mAtlases.Clear();
+        mFonts.Clear();
+        UILabel[] labels = tf.GetComponentsInChildren<UILabel>(true);
+        foreach (var label in labels)
+        {
+            UIFont font = label.font;
+            FontEntry fe = mFonts.Find(p => p.font == font);
+            if (fe == null)
+            {
+                fe = new FontEntry();
+                fe.font = font;
+                mFonts.Add(fe);
+            }
+            fe.labels.Add(label);
+        }
+        UISprite[] sprites = tf.GetComponentsInChildren<UISprite>(true);
+        foreach (var sprite in sprites)
+        {
+            UIAtlas atlas = sprite.atlas;
+            AtlasEntry ae = mAtlases.Find(p => p.atlas == atlas);
+            if (ae == null)
+            {
+                ae = new AtlasEntry();
+                ae.atlas = atlas;
+                mAtlases.Add(ae);
+            }
+            ae.sprites.Add(sprite);
+        }
+    }
     void SelectTransform()
     {
         Transform tf = (Transform)EditorGUILayout.ObjectField("Select Transform:", this.mSelectedFilterTransform, typeof(Transform), true, GUILayout.ExpandWidth(true));
         if (tf!=null && tf!=mSelectedFilterTransform)
         {
-            mSelectedFilterTransform = tf;
-            mAtlases.Clear();
-            mFonts.Clear();
-            UILabel[] labels = mSelectedFilterTransform.GetComponentsInChildren<UILabel>(true);
-            foreach (var label in labels)
-            {
-                UIFont font = label.font;
-                FontEntry fe = mFonts.Find(p => p.font == font);
-                if (fe == null)
-                {
-                    fe = new FontEntry();
-                    fe.font = font;
-                    mFonts.Add(fe);
-                }
-                fe.labels.Add(label);
-            }
-            UISprite[] sprites = mSelectedFilterTransform.GetComponentsInChildren<UISprite>(true);
-            foreach (var sprite in sprites)
-            {
-                UIAtlas atlas = sprite.atlas;
-                AtlasEntry ae = mAtlases.Find(p => p.atlas == atlas);
-                if (ae==null)
-                {
-                    ae = new AtlasEntry();
-                    ae.atlas = atlas;
-                    mAtlases.Add(ae);
-                }
-                ae.sprites.Add(sprite);
-            }
-
-            Debug.Log(mFonts.Count + " " + mAtlases.Count);
+            Flush(tf);
+            //Debug.Log(mFonts.Count + " " + mAtlases.Count);
         }
         //else
         //{
@@ -142,6 +142,11 @@ public class UIWidgetTool2 : EditorWindow
                 if (mSelectedFilterTransform != null)
                     RoundToInt_Pos(mSelectedFilterTransform);
             }
+            if (GUILayout.Button("Refresh", GUILayout.Width(150)))
+            {
+                if (mSelectedFilterTransform != null)
+                    Flush(mSelectedFilterTransform);
+            }
         GUILayout.EndHorizontal();
     }
     bool mShowSpecific = false;
@@ -156,24 +161,60 @@ public class UIWidgetTool2 : EditorWindow
             return;
         }
         NGUIEditorTools.DrawSeparator();
-        mShowSpecific = EditorGUILayout.Toggle("Show Specific", mShowSpecific);
+        bool showSpecial = EditorGUILayout.Toggle("Show Specific", mShowSpecific);
+        if (showSpecial!=mShowSpecific)
+        {
+            mShowSpecific = showSpecial;
+            if (mShowSpecific)
+            {
+                foreach (var fe in mFonts)
+                    fe.showRelated = true;
+                foreach (var ae in mAtlases)
+                    ae.showRelated = true;
+            }
+            else
+            {
+                foreach (var fe in mFonts)
+                    fe.showRelated = false;
+                foreach (var ae in mAtlases)
+                    ae.showRelated = false;
+            }
+        }
         mScroll = GUILayout.BeginScrollView(mScroll);
+        mFonts.Sort((p1, p2) =>
+            {
+                if (p1.meanZDepth > p2.meanZDepth)
+                    return 1;
+                else if (p1.meanZDepth < p2.meanZDepth)
+                    return -1;
+                else
+                    return 0;
+            });
         foreach (var fe in mFonts)
         {
             DrawFontEntryRow(fe);
-
-            if (mShowSpecific)
+            fe.labels.Sort((p1, p2) => p1.name.CompareTo(p2.name));
+            if (mShowSpecific|| fe.showRelated)
             {
                 foreach (var label in fe.labels)
                     DrawWidgetRow(label);
             }
         }
         NGUIEditorTools.DrawSeparator();
+        mAtlases.Sort((p1, p2) =>
+        {
+            if (p1.meanZDepth > p2.meanZDepth)
+                return 1;
+            else if (p1.meanZDepth < p2.meanZDepth)
+                return -1;
+            else
+                return 0;
+        });
         foreach ( var ae in mAtlases)
         {
             DrawAtlasRow(ae);
-
-            if (mShowSpecific)
+            ae.sprites.Sort((p1, p2) => p1.name.CompareTo(p2.name));
+            if (mShowSpecific || ae.showRelated)
             {
                 foreach (var sprite in ae.sprites)
                     DrawWidgetRow(sprite);
@@ -191,8 +232,9 @@ public class UIWidgetTool2 : EditorWindow
                 fe.enable = show;
                 foreach (var label in fe.labels)
                     NGUITools.SetActive(label.gameObject, show);
-
             }
+            GUI.contentColor = Color.black;
+            fe.showRelated = GUILayout.Toggle(fe.showRelated, fe.showRelated ? "▼" : "\u25BA", "Label", GUILayout.Width(20));
 
             GUILayout.Label(fe.font.name, GUILayout.Width(150));
             GUILayout.Label(string.Format("Num:{0}", fe.labels.Count), GUILayout.Width(50));
@@ -203,7 +245,8 @@ public class UIWidgetTool2 : EditorWindow
                 sum += label.transform.localPosition.z;
             }
             float meanDepth = sum / fe.labels.Count;
-            GUILayout.Label(string.Format("Mean Depth:{0}", meanDepth), GUILayout.Width(150));
+            fe.meanZDepth = meanDepth;
+            GUILayout.Label(string.Format("Mean Z Depth:{0}", meanDepth), GUILayout.Width(150));
             GUILayout.Space(10);
             mTempDepth = EditorGUILayout.FloatField(mTempDepth, GUILayout.Width(50));
             if (GUILayout.Button("Apply", GUILayout.Width(50)))
@@ -232,6 +275,8 @@ public class UIWidgetTool2 : EditorWindow
                 foreach (var sprite in ae.sprites)
                     NGUITools.SetActive(sprite.gameObject, show);
             }
+            GUI.contentColor = Color.black;
+            ae.showRelated = GUILayout.Toggle(ae.showRelated, ae.showRelated ? "▼" : "\u25BA", "Label", GUILayout.Width(20));
 
             GUILayout.Label(ae.atlas.name, GUILayout.Width(150));
             GUILayout.Label(string.Format("Num:{0}", ae.sprites.Count), GUILayout.Width(50));
@@ -243,7 +288,8 @@ public class UIWidgetTool2 : EditorWindow
                     sum += sprite.transform.localPosition.z;
             }
             float meanDepth = sum / ae.sprites.Count;
-            GUILayout.Label(string.Format("Mean Depth:{0}", meanDepth), GUILayout.Width(150));
+            ae.meanZDepth = meanDepth;
+            GUILayout.Label(string.Format("Mean Z Depth:{0}", meanDepth), GUILayout.Width(150));
             GUILayout.Space(10);
             mTempDepth = EditorGUILayout.FloatField(mTempDepth, GUILayout.Width(50));
             if (GUILayout.Button("Apply", GUILayout.Width(50)))

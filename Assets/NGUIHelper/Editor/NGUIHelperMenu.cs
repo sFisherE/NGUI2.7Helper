@@ -4,33 +4,23 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 
-/// <summary>
-///   
-/// todo:
-/// 1.how to apply prefab in runtime,because i always adjust value in runtime to avoid write to much editor code.
-/// 2.how to record data in runtime,
-/// </summary>
 static public class NGUIHelperMenu
 {
     //便捷的测试函数
-    [MenuItem("NGUIHelper/Test #&z")]
+    //[MenuItem("NGUIHelper/Test #&z")]
     public static void Test()
     {
         //var path = System.IO.Path.Combine(Application.dataPath, "Assets/NGUIHelperSettings.asset");
         //Debug.Log(path);
     }
-    [MenuItem("NGUIHelper/WidgetTool")]
-    static void ShowWidgetTool()
+
+    [MenuItem("NGUIHelper/Widgets Tool")]
+    static void ShowWidgetsTool()
     {
-        UIWidgetTool window = (UIWidgetTool)EditorWindow.GetWindow(typeof(UIWidgetTool), false, "Widget Tool");
-    }
-    [MenuItem("NGUIHelper/WidgetTool2")]
-    static void ShowWidgetTool2()
-    {
-        UIWidgetTool2 window = (UIWidgetTool2)EditorWindow.GetWindow(typeof(UIWidgetTool2), false, "Widget Tool2");
+        UIWidgetsTool window = (UIWidgetsTool)EditorWindow.GetWindow(typeof(UIWidgetsTool), false, "Widgets Tool");
     }
 
-    [MenuItem("NGUIHelper/Settings/Init Folders")]
+    //[MenuItem("NGUIHelper/Settings/Init Folders")]
     public static void InitFolders()
     {
         //DirectoryInfo di = new DirectoryInfo(Application.dataPath +"/"+ NGUIHelperSettings.instance.artFontOutputPath);
@@ -47,7 +37,7 @@ static public class NGUIHelperMenu
         NGUIHelperSettings.CreateNGUIHelperSetting();
     }
 
-    [MenuItem("NGUIHelper/Output The Selection Path #&g")]
+    //[MenuItem("NGUIHelper/Output The Selection Path #&g")]
     public static void OutputTheSelectionPath()
     {
         if (Selection.activeGameObject != null)
@@ -128,16 +118,16 @@ static public class NGUIHelperMenu
         EditorWindow.GetWindow<UIAtlasSpliter>(false, "AtlasSpliter", true);
     }
 
-    [MenuItem("NGUIHelper/9 Patch/Atlas 9 Patch Slicer")]
-    static public void openAtlas9PatchSlicer()
-    {
-        EditorWindow.GetWindow<UIAtlas9PatchSlicer>(false, "Atlas 9 Patch Slicer", true);
-    }
-    [MenuItem("NGUIHelper/9 Patch/Texture 9 Patch Slicer")]
-    static public void openTexture9PatchSlicer()
-    {
-        EditorWindow.GetWindow<UITexture9PatchSlicer>(false, "Texture 9 Patch Slicer", true);
-    }
+    //[MenuItem("NGUIHelper/9 Patch/Atlas 9 Patch Slicer")]
+    //static public void openAtlas9PatchSlicer()
+    //{
+    //    EditorWindow.GetWindow<UIAtlas9PatchSlicer>(false, "Atlas 9 Patch Slicer", true);
+    //}
+    //[MenuItem("NGUIHelper/9 Patch/Texture 9 Patch Slicer")]
+    //static public void openTexture9PatchSlicer()
+    //{
+    //    EditorWindow.GetWindow<UITexture9PatchSlicer>(false, "Texture 9 Patch Slicer", true);
+    //}
 
 
 #region  Destroy

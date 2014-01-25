@@ -5,10 +5,7 @@ using System.Collections;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-///   侦测某个atlas的使用情况，被那个prefab所使用
-///   侦测某个atlas里面哪个元素没有被使用过，这样便于清理
-/// </summary>
+
 public class UIAtlasSpider : EditorWindow
 {
     UIAtlas mSelectAtlas;
@@ -110,11 +107,12 @@ public class UIAtlasSpider : EditorWindow
             return mRuntimeUsage;
         }
     }
-
+    List<string> mDelNames = new List<string>();
     void DrawWidgets()
     {
         if (mSelectAtlas != null)
         {
+            bool delete = false;
             mScroll = GUILayout.BeginScrollView(mScroll);
             {
                 GUILayout.BeginVertical();
@@ -144,6 +142,27 @@ public class UIAtlasSpider : EditorWindow
                                     SpriteSelector.Show(mSelectAtlas, s.name, null);
                                 }
                                 GUILayout.Label(spriteUseStates[s.name].useTimes.ToString() + (useInRuntime ? " / runtime" : string.Empty));
+
+                                if (mDelNames.Contains(s.name))
+                                {
+                                    GUI.backgroundColor = Color.red;
+                                    if (GUILayout.Button("Delete", GUILayout.Width(60f)))
+                                    {
+                                        delete = true;
+                                    }
+                                    GUI.backgroundColor = Color.green;
+                                    if (GUILayout.Button("X", GUILayout.Width(22f)))
+                                    {
+                                        mDelNames.Remove(s.name);
+                                        delete = false;
+                                    }
+                                    GUI.backgroundColor = Color.white;
+                                }
+                                else
+                                {
+                                    // If we have not yet selected a sprite for deletion, show a small "X" button
+                                    if (GUILayout.Button("X", GUILayout.Width(22f))) mDelNames.Add(s.name);
+                                }
                             }
                             GUILayout.EndHorizontal();
                             if (mShowRelatedSprites)
@@ -179,8 +198,24 @@ public class UIAtlasSpider : EditorWindow
                     }
                 }
                 GUILayout.EndVertical();
+                if (delete)
+                {
+                    List<AtlasUtility.SpriteEntry> sprites = new List<AtlasUtility.SpriteEntry>();
+                   AtlasUtility.ExtractSprites(mSelectAtlas, sprites);
+
+                    for (int i = sprites.Count; i > 0; )
+                    {
+                        AtlasUtility.SpriteEntry ent = sprites[--i];
+                        if (mDelNames.Contains(ent.tex.name))
+                            sprites.RemoveAt(i);
+                    }
+                    AtlasUtility.UpdateAtlas(mSelectAtlas, sprites);
+                    mDelNames.Clear();
+                }
             }
             GUILayout.EndScrollView();
+
+
         }
     }
     void OnGUI()
@@ -225,21 +260,4 @@ public class UIAtlasSpider : EditorWindow
             }
         }
     }
-    //void SetSpriteUseState(List<UISprite> sprites)
-    //{
-    //    foreach (UISprite s in sprites)
-    //    {
-    //        if (s.atlas == mSelectAtlas)
-    //        {
-    //            string key = s.spriteName;
-    //            spriteUseStates[key].useState = true;
-    //            List<GameObject> gos = spriteUseStates[key].relatedGos;
-    //            if (!gos.Contains(s.gameObject))
-    //            {
-    //                spriteUseStates[key].useTimes++;//increase use times
-    //                gos.Add(s.gameObject);
-    //            }
-    //        }
-    //    }
-    //}
 }
