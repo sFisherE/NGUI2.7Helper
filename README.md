@@ -22,4 +22,5 @@ todo：
 2.9 patch tool need automatic change the related UISprite component mode to sliced
 3.new art text component which use just one UIWidget,keep the old one which can animate easily
 4.add tools to manage audioClips,textures.I want to know every texture or audioClip's usage in my project.
-5....
+5.shrink the texture and the sprite in atlas to save some space
+6...
