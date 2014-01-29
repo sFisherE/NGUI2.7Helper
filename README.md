@@ -13,14 +13,17 @@ include:
 9.remove all unused anmationClip asset;look up the anmationClip usage.
 10.Localize Editor,make edit easily,quickly
 11.simple layout tool(fully utilize the unity3d'buildin Project Browser) to make ui layout easily,just drag and drop the texture in the specialized folder,press shift or alt to change the setting,wip,more functions to add.
+12.rename sprite in atlas
 
 
 I will upgrade these tools to NGUI3.x in future
 
 todo：
-1.widgetsTool need to optimize with it's interface and add more function to multiple widgets operation 
-2.9 patch tool need automatic change the related UISprite component mode to sliced
-3.new art text component which use just one UIWidget,keep the old one which can animate easily
-4.add tools to manage audioClips,textures.I want to know every texture or audioClip's usage in my project.
-5.shrink the texture and the sprite in atlas to save some space
+//1.widgetsTool need to optimize with it's interface and add more function to multiple widgets operation 
+//2.9 patch tool need automatic change the related UISprite component mode to sliced
+1.make 9 patch script in photoshop
+2.new art text component which use just one UIWidget,keep the old one which can animate easily
+3.add tools to manage audioClips,textures.I want to know every texture or audioClip's usage in my project.
+4.shrink the texture and the sprite in atlas to save some space
+5.layout tool can generate an atlas related to the edited ui.
 6...
