@@ -65,7 +65,11 @@ static public class NGUIHelperMenu
     {
         ScriptableWizard.DisplayWizard<ReplaceSprite>("Replace Sprite", "Close", "Replace");
     }
-
+    [MenuItem("NGUIHelper/Sprite Rename Tool")]
+    static void CreateSpriteRenameTool()
+    {
+        SpriteRenameTool window = (SpriteRenameTool)EditorWindow.GetWindow(typeof(SpriteRenameTool), false, "Sprite Rename Tool");
+    }
 #region  Find
     [MenuItem("NGUIHelper/Find/Atlas Spider")]
     static void CreateAtlasSpiderWizard()

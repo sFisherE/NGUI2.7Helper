@@ -1,12 +1,18 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench ActiveDocument="..\NGUIxUniLua\Project\Assets\NGUIxUniLua\Scripts\test.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\NGUIHelper\Editor\SpriteRenameTool.cs">
     <Files>
-      <File FileName="..\NGUIxUniLua\Project\Assets\NGUIxUniLua\Scripts\test.cs" Line="8" Column="1" />
+      <File FileName="Assets\NGUIHelper\Editor\NGUIHelperSettings.cs" Line="11" Column="2" />
+      <File FileName="Assets\NGUIHelper\Editor\SpriteRenameTool.cs" Line="106" Column="39" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="E:\github\NGUI2.7Helper\Assets\NGUIHelper\Editor\SpriteRenameTool.cs" line="100" />
+      <Breakpoint file="E:\github\NGUI2.7Helper\Assets\NGUIHelper\Editor\SpriteRenameTool.cs" line="101" />
+      <Breakpoint file="E:\github\NGUI2.7Helper\Assets\NGUIHelper\Editor\SpriteRenameTool.cs" line="107" />
+      <Breakpoint file="E:\github\NGUI2.7Helper\Assets\NGUIHelper\Editor\SpriteRenameTool.cs" line="149" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
